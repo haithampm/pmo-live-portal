@@ -19,9 +19,7 @@ import {
   Folder,
   Grid2X2,
   Home,
-  LayoutDashboard,
   LineChart,
-  Menu,
   MoreHorizontal,
   Plus,
   Search,
@@ -109,12 +107,41 @@ function Donut() {
   );
 }
 
+function cellTone(value, header = '') {
+  const text = norm(value).toLowerCase();
+  const head = norm(header).toLowerCase();
+  if (!text) return '';
+  if (text.includes('مكتمل') || text.includes('تم') || text.includes('done') || text.includes('completed') || text.includes('على المسار')) return 'cellSuccess';
+  if (text.includes('متأخر') || text.includes('تعثر') || text.includes('متعثر') || text.includes('critical') || text.includes('high') || text.includes('blocked')) return 'cellDanger';
+  if (text.includes('انتظار') || text.includes('تحت') || text.includes('قيد') || text.includes('تحليل') || text.includes('medium')) return 'cellWarning';
+  if (head.includes('date') || head.includes('تاريخ') || text.match(/^\d{4}[/-]\d{1,2}[/-]\d{1,2}/)) return 'cellDate';
+  if (text.includes('%') || head.includes('progress') || head.includes('نسبة')) return 'cellProgress';
+  return '';
+}
+
+function renderSheetCell(value, header) {
+  const text = norm(value);
+  if (!text) return <span className="mutedCell">—</span>;
+  const tone = cellTone(text, header);
+  const numeric = Number(text.replace('%', ''));
+  if ((tone === 'cellProgress' || norm(header).toLowerCase().includes('progress') || norm(header).includes('نسبة')) && !Number.isNaN(numeric)) {
+    const valueNum = Math.max(0, Math.min(100, numeric));
+    return <div className="sheetProgress"><b>{valueNum}%</b><span><i style={{ width: `${valueNum}%` }} /></span></div>;
+  }
+  if (tone === 'cellSuccess' || tone === 'cellDanger' || tone === 'cellWarning') return <span className={`sheetChip ${tone}`}>{text}</span>;
+  if (text.startsWith('http')) return <a className="sheetLink" href={text} target="_blank" rel="noreferrer">فتح الرابط</a>;
+  return text;
+}
+
 function App() {
   const [data, setData] = React.useState({ workbook: 'Sample dashboard', sheets: [], projects: DEFAULT_PROJECTS });
   const [sheetQuery, setSheetQuery] = React.useState('');
   const [activeSheet, setActiveSheet] = React.useState('');
   const currentSheet = data.sheets.find(s => s.name === activeSheet) || data.sheets[0];
-  const sheetRows = currentSheet ? currentSheet.rows.filter(row => row.some(cell => norm(cell).toLowerCase().includes(sheetQuery.toLowerCase()))).slice(0, 80) : [];
+  const sheetRows = currentSheet ? currentSheet.rows.filter(row => row.some(cell => norm(cell).toLowerCase().includes(sheetQuery.toLowerCase()))).slice(0, 120) : [];
+  const totalRows = currentSheet?.rows?.length || 0;
+  const totalCols = currentSheet?.headers?.length || 0;
+  const matchedRows = sheetRows.length;
 
   async function uploadWorkbook(event) {
     const file = event.target.files?.[0];
@@ -182,10 +209,10 @@ function App() {
 
         <section className="projectsTable panel">
           <div className="tableTop"><a>عرض الكل <ChevronLeft size={17} /></a><h3>المشاريع</h3></div>
-          <table><thead><tr><th>المشروع</th><th>المدير</th><th>الحالة</th><th>نسبة الإنجاز</th><th>الموعد النهائي</th><th></th></tr></thead><tbody>{projects.slice(0, 8).map((p, i) => <tr key={p.name}><td><span className="projectIcon"><Grid2X2 size={16} /></span>{p.name}</td><td><img src={p.avatar} />{p.manager}</td><td><StatusPill type={p.health}>{p.status}</StatusPill></td><td><b>{p.progress}%</b><ProgressBar value={p.progress} /></td><td className={p.health === 'late' || p.health === 'risk' ? 'dateRed' : p.health === 'done' ? 'dateGreen' : ''}>{p.end}</td><td><MoreHorizontal size={20} /></td></tr>)}</tbody></table>
+          <table><thead><tr><th>المشروع</th><th>المدير</th><th>الحالة</th><th>نسبة الإنجاز</th><th>الموعد النهائي</th><th></th></tr></thead><tbody>{projects.slice(0, 8).map((p) => <tr key={p.name}><td><span className="projectIcon"><Grid2X2 size={16} /></span>{p.name}</td><td><img src={p.avatar} />{p.manager}</td><td><StatusPill type={p.health}>{p.status}</StatusPill></td><td><b>{p.progress}%</b><ProgressBar value={p.progress} /></td><td className={p.health === 'late' || p.health === 'risk' ? 'dateRed' : p.health === 'done' ? 'dateGreen' : ''}>{p.end}</td><td><MoreHorizontal size={20} /></td></tr>)}</tbody></table>
         </section>
 
-        {data.sheets.length > 0 && <section className="sheetViewer panel"><div className="panelHead"><Search size={21} /><h3>عرض الشيتات مباشرة</h3></div><div className="sheetControls"><div className="tabs">{data.sheets.map(s => <button key={s.name} className={(currentSheet?.name === s.name) ? 'active' : ''} onClick={() => setActiveSheet(s.name)}>{s.name}<span>{s.rows.length}</span></button>)}</div><input value={sheetQuery} onChange={e => setSheetQuery(e.target.value)} placeholder="بحث داخل الشيت" /></div>{currentSheet && <div className="sheetTable"><table><thead><tr>{currentSheet.headers.map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{sheetRows.map((row, i) => <tr key={i}>{currentSheet.headers.map((h, j) => <td key={`${i}-${j}`}>{row[j]}</td>)}</tr>)}</tbody></table></div>}</section>}
+        {data.sheets.length > 0 && <section className="sheetViewer panel"><div className="sheetHero"><div><h3>عرض الشيتات مباشرة</h3><p>جداول احترافية مع ألوان للحالة، الأولوية، التواريخ، ونسب الإنجاز.</p></div><div className="sheetMiniStats"><span><b>{data.sheets.length}</b> شيت</span><span><b>{totalRows}</b> صف</span><span><b>{totalCols}</b> عمود</span><span><b>{matchedRows}</b> نتيجة</span></div></div><div className="sheetControls enhanced"><div className="tabs">{data.sheets.map(s => <button key={s.name} className={(currentSheet?.name === s.name) ? 'active' : ''} onClick={() => setActiveSheet(s.name)}>{s.name}<span>{s.rows.length}</span></button>)}</div><div className="sheetSearch"><Search size={17} /><input value={sheetQuery} onChange={e => setSheetQuery(e.target.value)} placeholder="بحث داخل الشيت" /></div></div>{currentSheet && <div className="sheetTable enhancedTable"><table><thead><tr>{currentSheet.headers.map((h, index) => <th key={`${h}-${index}`}><span>{h}</span></th>)}</tr></thead><tbody>{sheetRows.map((row, i) => <tr key={i}>{currentSheet.headers.map((h, j) => <td className={cellTone(row[j], h)} key={`${i}-${j}`}>{renderSheetCell(row[j], h)}</td>)}</tr>)}</tbody></table></div>}</section>}
       </main>
     </div>
   );
