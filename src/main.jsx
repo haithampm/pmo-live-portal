@@ -13,13 +13,17 @@ import {
   ChevronLeft,
   ClipboardCheck,
   Clock3,
+  Copy,
   Download,
   Edit3,
+  Eye,
   FileText,
   Filter,
   Folder,
   Grid2X2,
   Home,
+  KanbanSquare,
+  LayoutList,
   LineChart,
   MoreHorizontal,
   Plus,
@@ -27,17 +31,18 @@ import {
   Settings,
   Share2,
   Table2,
+  Trash2,
   Upload,
   Users,
 } from 'lucide-react';
 import './styles.css';
 
 const DEFAULT_PROJECTS = [
-  { name: 'تطوير بوابة العملاء', manager: 'أحمد العتيبي', avatar: 'https://i.pravatar.cc/60?img=12', status: 'متأخر', progress: 55, end: '2025/06/15', health: 'late' },
-  { name: 'نظام ERP', manager: 'سارة المري', avatar: 'https://i.pravatar.cc/60?img=47', status: 'على المسار', progress: 72, end: '2025/07/30', health: 'on' },
-  { name: 'تحديث البنية التحتية', manager: 'محمد الحربي', avatar: 'https://i.pravatar.cc/60?img=33', status: 'متعثّر', progress: 30, end: '2025/05/20', health: 'risk' },
-  { name: 'تطبيق الهاتف المحمول', manager: 'منال الشريف', avatar: 'https://i.pravatar.cc/60?img=49', status: 'على المسار', progress: 80, end: '2025/08/10', health: 'on' },
-  { name: 'تحليل البيانات والذكاء الاصطناعي', manager: 'علي القحطاني', avatar: 'https://i.pravatar.cc/60?img=11', status: 'مكتمل', progress: 100, end: '2025/04/30', health: 'done' },
+  { name: 'تطوير بوابة العملاء', manager: 'أحمد العتيبي', avatar: 'https://i.pravatar.cc/60?img=12', status: 'متأخر', progress: 55, end: '2025/06/15', health: 'late', priority: 'High' },
+  { name: 'نظام ERP', manager: 'سارة المري', avatar: 'https://i.pravatar.cc/60?img=47', status: 'على المسار', progress: 72, end: '2025/07/30', health: 'on', priority: 'Medium' },
+  { name: 'تحديث البنية التحتية', manager: 'محمد الحربي', avatar: 'https://i.pravatar.cc/60?img=33', status: 'متعثّر', progress: 30, end: '2025/05/20', health: 'risk', priority: 'Critical' },
+  { name: 'تطبيق الهاتف المحمول', manager: 'منال الشريف', avatar: 'https://i.pravatar.cc/60?img=49', status: 'على المسار', progress: 80, end: '2025/08/10', health: 'on', priority: 'Medium' },
+  { name: 'تحليل البيانات والذكاء الاصطناعي', manager: 'علي القحطاني', avatar: 'https://i.pravatar.cc/60?img=11', status: 'مكتمل', progress: 100, end: '2025/04/30', health: 'done', priority: 'Low' },
 ];
 
 function norm(value) {
@@ -70,6 +75,21 @@ function phaseProgress(text) {
   return 50;
 }
 
+function projectHealth(progress) {
+  if (progress >= 90) return 'done';
+  if (progress >= 70) return 'on';
+  if (progress >= 45) return 'late';
+  return 'risk';
+}
+
+function healthStatus(health) {
+  return health === 'done' ? 'مكتمل' : health === 'on' ? 'على المسار' : health === 'late' ? 'متأخر' : 'متعثّر';
+}
+
+function priorityFromHealth(health) {
+  return health === 'risk' ? 'Critical' : health === 'late' ? 'High' : health === 'on' ? 'Medium' : 'Low';
+}
+
 function parseWorkbook(workbook, fileName = 'Uploaded workbook') {
   const sheets = workbook.SheetNames.map(name => ({ name, ...sheetToRows(workbook.Sheets[name]) }));
   const erp = sheets.find(s => s.name === 'ERP Project');
@@ -86,7 +106,8 @@ function parseWorkbook(workbook, fileName = 'Uploaded workbook') {
       const note = row[7] || row[8] || '';
       if (!title || title === sheet.name) return;
       const progress = phaseProgress(`${phase} ${status}`);
-      tasks.push({ id: `${sheet.name}-${idx}`, project: sheet.name, title, phase, status: status || 'مفتوح', assignee, note, progress });
+      const health = projectHealth(progress);
+      tasks.push({ id: `${sheet.name}-${idx}`, project: sheet.name, title, phase, status: status || 'مفتوح', assignee, note, progress, health, priority: priorityFromHealth(health) });
     });
   });
 
@@ -101,17 +122,8 @@ function parseWorkbook(workbook, fileName = 'Uploaded workbook') {
     const manager = row[7] || row[6] || 'مدير المشروع';
     const projectTasks = grouped[name] || [];
     const progress = projectTasks.length ? Math.round(projectTasks.reduce((a, t) => a + t.progress, 0) / projectTasks.length) : Math.min(100, Math.max(20, 35 + ((i * 11) % 65)));
-    const health = progress >= 90 ? 'done' : progress >= 70 ? 'on' : progress >= 45 ? 'late' : 'risk';
-    return {
-      name,
-      manager,
-      avatar: `https://i.pravatar.cc/60?img=${(i % 50) + 1}`,
-      status: health === 'done' ? 'مكتمل' : health === 'on' ? 'على المسار' : health === 'late' ? 'متأخر' : 'متعثّر',
-      progress,
-      end: row[10] || row[9] || '2025/07/30',
-      health,
-      tasks: projectTasks.length,
-    };
+    const health = projectHealth(progress);
+    return { name, manager, avatar: `https://i.pravatar.cc/60?img=${(i % 50) + 1}`, status: healthStatus(health), progress, end: row[10] || row[9] || '2025/07/30', health, tasks: projectTasks.length, priority: priorityFromHealth(health) };
   }) : DEFAULT_PROJECTS;
 
   return { workbook: fileName, sheets, projects, tasks };
@@ -119,6 +131,10 @@ function parseWorkbook(workbook, fileName = 'Uploaded workbook') {
 
 function StatusPill({ type, children }) {
   return <span className={`statusPill ${type}`}>{children}</span>;
+}
+
+function PriorityPill({ value }) {
+  return <span className={`priorityPill ${String(value).toLowerCase()}`}>{value}</span>;
 }
 
 function TopMetric({ title, value, delta, icon: Icon, tone }) {
@@ -161,7 +177,32 @@ function Donut({ projects }) {
   const late = projects.filter(p => p.health === 'late').length;
   const risk = projects.filter(p => p.health === 'risk').length;
   const done = projects.filter(p => p.health === 'done').length;
-  return <div className="donutWrap"><div className="donut dynamic" style={{ background: `conic-gradient(#2fb34f 0 ${(on / total) * 100}%, #f3bb2f ${(on / total) * 100}% ${((on + late) / total) * 100}%, #e64545 ${((on + late) / total) * 100}% ${((on + late + risk) / total) * 100}%, #a7adb6 ${((on + late + risk) / total) * 100}% 100%)` }}><span /></div><div className="legend"><p><i className="greenDot" />على المسار: {on}</p><p><i className="amberDot" />متأخر: {late}</p><p><i className="redDot" />متعثر: {risk}</p><p><i className="grayDot" />مكتمل: {done}</p></div><b>إجمالي المشاريع: {projects.length}</b></div>;
+  return <div className="donutWrap"><div className="donut dynamic" style={{ background: `conic-gradient(#448361 0 ${(on / total) * 100}%, #cb912f ${(on / total) * 100}% ${((on + late) / total) * 100}%, #d44c47 ${((on + late) / total) * 100}% ${((on + late + risk) / total) * 100}%, #9b9a97 ${((on + late + risk) / total) * 100}% 100%)` }}><span /></div><div className="legend"><p><i className="greenDot" />على المسار: {on}</p><p><i className="amberDot" />متأخر: {late}</p><p><i className="redDot" />متعثر: {risk}</p><p><i className="grayDot" />مكتمل: {done}</p></div><b>إجمالي المشاريع: {projects.length}</b></div>;
+}
+
+function ActionButton({ icon: Icon, label, tone = '' }) {
+  return <button className={`actionButton ${tone}`}><Icon size={16}/>{label}</button>;
+}
+
+function BoardCard({ item }) {
+  return <div className="boardCard"><div className="boardCardTop"><b>{item.name || item.title}</b><MoreHorizontal size={16}/></div><p>{item.manager || item.assignee || 'غير محدد'}</p><ProgressBar value={item.progress || 0}/><div className="boardMeta"><PriorityPill value={item.priority || 'Medium'} /><span>{item.progress || 0}%</span></div></div>;
+}
+
+function MondayBoard({ projects, tasks }) {
+  const columns = [
+    ['risk', 'متعثر / Critical', projects.filter(p => p.health === 'risk')],
+    ['late', 'متأخر / High', projects.filter(p => p.health === 'late')],
+    ['on', 'على المسار', projects.filter(p => p.health === 'on')],
+    ['done', 'مكتمل', projects.filter(p => p.health === 'done')],
+  ];
+  return <div className="mondayBoard">{columns.map(([key, title, items]) => <div className={`boardColumn ${key}`} key={key}><div className="boardColumnHead"><span>{title}</span><b>{items.length}</b></div>{items.slice(0, 8).map(item => <BoardCard key={item.name} item={item}/>)}{items.length === 0 && <div className="emptyColumn">لا توجد عناصر</div>}</div>)}</div>;
+}
+
+function FunctionPanel({ setPage }) {
+  const actions = [
+    [Plus, 'إضافة عنصر', 'primary'], [Filter, 'فلترة متقدمة', ''], [LayoutList, 'عرض جدول', ''], [KanbanSquare, 'عرض كانبان', ''], [CalendarDays, 'تقويم', ''], [BarChart3, 'تحليل', ''], [Copy, 'نسخ', ''], [Eye, 'معاينة', ''], [Edit3, 'تعديل', ''], [Trash2, 'حذف', 'danger'], [Download, 'تصدير', ''], [Share2, 'مشاركة', '']
+  ];
+  return <section className="functionPanel panel"><div className="functionHead"><div><h3>أدوات التشغيل</h3><p>Buttons & functions بشكل قريب من Notion و Monday.</p></div><button onClick={()=>setPage('sheets')}>فتح القوائم</button></div><div className="functionGrid">{actions.map(([Icon, label, tone]) => <ActionButton key={label} icon={Icon} label={label} tone={tone}/>)}</div></section>;
 }
 
 function App() {
@@ -172,6 +213,7 @@ function App() {
   const [statusFilter, setStatusFilter] = React.useState('الكل');
   const [managerFilter, setManagerFilter] = React.useState('الكل');
   const [progressFilter, setProgressFilter] = React.useState('الكل');
+  const [viewMode, setViewMode] = React.useState('table');
   const currentSheet = data.sheets.find(s => s.name === activeSheet) || data.sheets[0];
   const projects = data.projects;
 
@@ -206,6 +248,8 @@ function App() {
   const nav = [
     ['dashboard', Home, 'الصفحة الرئيسية'],
     ['portfolio', Folder, 'المحفظة والمشاريع'],
+    ['board', KanbanSquare, 'لوحة Monday'],
+    ['functions', Settings, 'الأزرار والفانكشن'],
     ['sheets', Table2, 'قوائم الشيتات'],
     ['tasks', ClipboardCheck, 'المهام'],
     ['reports', BarChart3, 'التقارير ولوحات المعلومات'],
@@ -217,24 +261,25 @@ function App() {
   ];
 
   return <div className="spPage" dir="rtl">
-    <header className="spTopBar"><div className="topIcons"><img src="https://i.pravatar.cc/48?img=13" /><Settings size={21} /><span>؟</span><Bell size={20} /></div><div className="spSearch"><Search size={19} /><input placeholder="البحث في هذا الموقع" /></div><div className="spBrand"><b>SharePoint</b><Grid2X2 size={24} /></div></header>
+    <header className="spTopBar"><div className="topIcons"><img src="https://i.pravatar.cc/48?img=13" /><Settings size={21} /><span>؟</span><Bell size={20} /></div><div className="spSearch"><Search size={19} /><input placeholder="البحث في هذا الموقع" /></div><div className="spBrand"><b>PMO Workspace</b><Grid2X2 size={24} /></div></header>
     <aside className="rightNav">{nav.map(([key, Icon, label]) => <a key={key} className={page === key ? 'active' : ''} onClick={() => setPage(key)}><Icon size={22} />{label}</a>)}<a className="edit"><Edit3 size={20} />تحرير</a><a className="back"><ChevronLeft size={20} />عودة إلى SharePoint</a></aside>
 
     <main className="spContent">
-      <section className="pageHeader"><div className="headerIcon"><BriefcaseBusiness size={44} /></div><div><h1>بوابة إدارة المشاريع</h1><p>{page === 'dashboard' ? 'لوحة تحكم المحفظة والمشاريع' : page === 'sheets' ? 'إدارة قوائم الشيتات والجداول' : 'صفحة مستقلة لإدارة بيانات المحفظة'}</p></div></section>
-      <section className="commandBar"><label className="primaryCmd"><Plus size={20} />رفع شيت جديد<input type="file" accept=".xlsx,.xls,.xlsm" onChange={uploadWorkbook} /></label><button><FileText size={18} />إنشاء تقرير</button><button><Download size={18} />تصدير</button><button><Share2 size={18} />مشاركة</button><span className="workbookName">{data.workbook}</span></section>
+      <section className="pageHeader"><div className="headerIcon"><BriefcaseBusiness size={44} /></div><div><h1>بوابة إدارة المشاريع</h1><p>{page === 'dashboard' ? 'Dashboard ديناميكي بأسلوب Notion / Monday' : page === 'sheets' ? 'قوائم وDatabases للشيتات' : page === 'board' ? 'لوحة كانبان احترافية مثل Monday' : page === 'functions' ? 'مركز الأزرار والفانكشن' : 'صفحة مستقلة لإدارة بيانات المحفظة'}</p></div></section>
+      <section className="commandBar"><label className="primaryCmd"><Plus size={20} />رفع شيت جديد<input type="file" accept=".xlsx,.xls,.xlsm" onChange={uploadWorkbook} /></label><button onClick={()=>setPage('functions')}><Settings size={18} />الفانكشن</button><button onClick={()=>setPage('board')}><KanbanSquare size={18} />Monday Board</button><button><Download size={18} />تصدير</button><button><Share2 size={18} />مشاركة</button><span className="workbookName">{data.workbook}</span></section>
 
       {page === 'dashboard' && <>
-        <section className="filterBar panel"><div><Filter size={18}/><b>فلاتر الداشبورد</b></div><select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option>الكل</option><option>على المسار</option><option>متأخر</option><option>متعثّر</option><option>مكتمل</option></select><select value={managerFilter} onChange={e=>setManagerFilter(e.target.value)}>{managers.map(m => <option key={m}>{m}</option>)}</select><select value={progressFilter} onChange={e=>setProgressFilter(e.target.value)}><option>الكل</option><option>أقل من 50%</option><option>50% - 80%</option><option>أكثر من 80%</option></select></section>
+        <FunctionPanel setPage={setPage}/>
+        <section className="filterBar panel"><div><Filter size={18}/><b>فلاتر الداشبورد</b></div><select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option>الكل</option><option>على المسار</option><option>متأخر</option><option>متعثّر</option><option>مكتمل</option></select><select value={managerFilter} onChange={e=>setManagerFilter(e.target.value)}>{managers.map(m => <option key={m}>{m}</option>)}</select><select value={progressFilter} onChange={e=>setProgressFilter(e.target.value)}><option>الكل</option><option>أقل من 50%</option><option>50% - 80%</option><option>أكثر من 80%</option></select><div className="viewToggle"><button className={viewMode==='table'?'active':''} onClick={()=>setViewMode('table')}><LayoutList size={16}/>جدول</button><button className={viewMode==='board'?'active':''} onClick={()=>setViewMode('board')}><KanbanSquare size={16}/>كانبان</button></div></section>
         <section className="kpiGrid"><TopMetric title="عدد المشاريع" value={filteredProjects.length} delta="حسب الفلاتر الحالية" icon={Folder} tone="blue" /><TopMetric title="المشاريع المتأخرة" value={lateCount} delta="تحتاج متابعة" icon={Clock3} tone="red" /><TopMetric title="المشاريع عالية المخاطر" value={riskCount} delta="تحتاج تصعيد" icon={AlertTriangle} tone="orange" /><TopMetric title="نسبة الإنجاز" value={`${avgProgress}%`} delta="متوسط المحفظة" icon={LineChart} tone="green" /><TopMetric title="على المسار" value={onCount} delta="حالة مستقرة" icon={Users} tone="purple" /><TopMetric title="مكتملة" value={doneCount} delta="تم الانتهاء" icon={FileText} tone="cyan" /></section>
-        <section className="dashboardGrid"><div className="panel chartPanel"><div className="panelHead"><MoreHorizontal size={22} /><h3>توزيع حالة المشاريع</h3></div><Donut projects={filteredProjects} /></div><div className="panel summaryPanel"><div className="panelHead"><BriefcaseBusiness size={22} /><h3>ملخص المحفظة الديناميكي</h3></div><div className="portfolioStats"><div><CheckCircle2 className="greenIcon" /><b>{onCount}</b><span>على المسار</span></div><div><AlertTriangle className="redIcon" /><b>{riskCount}</b><span>متعثر</span></div><div><Clock3 className="amberIcon" /><b>{lateCount}</b><span>متأخر</span></div><div><CheckCircle2 className="grayIcon" /><b>{doneCount}</b><span>مكتمل</span></div></div><div className="dualProgress"><div><p>نسبة الإنجاز الإجمالية <b>{avgProgress}%</b></p><ProgressBar value={avgProgress} /></div><div><p>عدد المهام المستخرجة <b>{data.tasks?.length || 0}</b></p><ProgressBar value={Math.min(100, (data.tasks?.length || 0) / 5)} tone="purple" /></div></div></div><div className="panel alertPanel"><div className="panelHead"><Bell size={22} /><h3>تنبيهات ومتابعات</h3></div><div className="alerts"><div><span className="alertIcon red"><AlertTriangle /></span><p><b>{riskCount} مشروع متعثر</b><small>راجع صفحة المحفظة والمشاريع</small></p><em>الآن</em></div><div><span className="alertIcon amber"><AlertTriangle /></span><p><b>{lateCount} مشروع متأخر</b><small>تحتاج خطة معالجة</small></p><em>الآن</em></div><div><span className="alertIcon orange"><CalendarDays /></span><p><b>{data.sheets.length} شيت متاح</b><small>افتح صفحة قوائم الشيتات</small></p><em>الآن</em></div></div><a className="allAlerts" onClick={()=>setPage('sheets')}>عرض الشيتات <ChevronLeft size={17} /></a></div></section>
+        {viewMode === 'board' ? <MondayBoard projects={filteredProjects} tasks={data.tasks}/> : <section className="dashboardGrid"><div className="panel chartPanel"><div className="panelHead"><MoreHorizontal size={22} /><h3>توزيع حالة المشاريع</h3></div><Donut projects={filteredProjects} /></div><div className="panel summaryPanel"><div className="panelHead"><BriefcaseBusiness size={22} /><h3>ملخص المحفظة الديناميكي</h3></div><div className="portfolioStats"><div><CheckCircle2 className="greenIcon" /><b>{onCount}</b><span>على المسار</span></div><div><AlertTriangle className="redIcon" /><b>{riskCount}</b><span>متعثر</span></div><div><Clock3 className="amberIcon" /><b>{lateCount}</b><span>متأخر</span></div><div><CheckCircle2 className="grayIcon" /><b>{doneCount}</b><span>مكتمل</span></div></div><div className="dualProgress"><div><p>نسبة الإنجاز الإجمالية <b>{avgProgress}%</b></p><ProgressBar value={avgProgress} /></div><div><p>عدد المهام المستخرجة <b>{data.tasks?.length || 0}</b></p><ProgressBar value={Math.min(100, (data.tasks?.length || 0) / 5)} tone="purple" /></div></div></div><div className="panel alertPanel"><div className="panelHead"><Bell size={22} /><h3>تنبيهات ومتابعات</h3></div><div className="alerts"><div><span className="alertIcon red"><AlertTriangle /></span><p><b>{riskCount} مشروع متعثر</b><small>راجع صفحة المحفظة والمشاريع</small></p><em>الآن</em></div><div><span className="alertIcon amber"><AlertTriangle /></span><p><b>{lateCount} مشروع متأخر</b><small>تحتاج خطة معالجة</small></p><em>الآن</em></div><div><span className="alertIcon orange"><CalendarDays /></span><p><b>{data.sheets.length} شيت متاح</b><small>افتح صفحة قوائم الشيتات</small></p><em>الآن</em></div></div><a className="allAlerts" onClick={()=>setPage('sheets')}>عرض الشيتات <ChevronLeft size={17} /></a></div></section>}
       </>}
 
-      {page === 'portfolio' && <section className="projectsTable panel"><div className="tableTop"><a>عرض الكل <ChevronLeft size={17} /></a><h3>المشاريع</h3></div><table><thead><tr><th>المشروع</th><th>المدير</th><th>الحالة</th><th>نسبة الإنجاز</th><th>الموعد النهائي</th><th></th></tr></thead><tbody>{filteredProjects.map(p => <tr key={p.name}><td><span className="projectIcon"><Grid2X2 size={16} /></span>{p.name}</td><td><img src={p.avatar} />{p.manager}</td><td><StatusPill type={p.health}>{p.status}</StatusPill></td><td><b>{p.progress}%</b><ProgressBar value={p.progress} /></td><td className={p.health === 'late' || p.health === 'risk' ? 'dateRed' : p.health === 'done' ? 'dateGreen' : ''}>{p.end}</td><td><MoreHorizontal size={20} /></td></tr>)}</tbody></table></section>}
-
-      {page === 'sheets' && <section className="sheetViewer panel"><div className="sheetHero"><div><h3>صفحة قوائم الشيتات</h3><p>كل الشيتات في صفحة مستقلة مع Dropdowns وفلاتر وجدول منسق.</p></div><div className="sheetMiniStats"><span><b>{data.sheets.length}</b> شيت</span><span><b>{totalRows}</b> صف</span><span><b>{totalCols}</b> عمود</span><span><b>{sheetRows.length}</b> نتيجة</span></div></div><div className="sheetControls enhanced"><div className="selectBlock"><label>اختر الشيت</label><select value={currentSheet?.name || ''} onChange={e => setActiveSheet(e.target.value)}>{data.sheets.length ? data.sheets.map(s => <option key={s.name} value={s.name}>{s.name} - {s.rows.length} صف</option>) : <option>ارفع ملف Excel أولاً</option>}</select></div><div className="selectBlock"><label>نوع العرض</label><select><option>جدول تفصيلي</option><option>عرض مختصر</option><option>عناصر تحتاج متابعة</option></select></div><div className="sheetSearch"><Search size={17} /><input value={sheetQuery} onChange={e => setSheetQuery(e.target.value)} placeholder="بحث داخل الشيت" /></div></div><div className="tabs compactTabs">{data.sheets.map(s => <button key={s.name} className={(currentSheet?.name === s.name) ? 'active' : ''} onClick={() => setActiveSheet(s.name)}>{s.name}<span>{s.rows.length}</span></button>)}</div>{currentSheet ? <div className="sheetTable enhancedTable"><table><thead><tr>{currentSheet.headers.map((h, index) => <th key={`${h}-${index}`}><span>{h}</span></th>)}</tr></thead><tbody>{sheetRows.map((row, i) => <tr key={i}>{currentSheet.headers.map((h, j) => <td className={cellTone(row[j], h)} key={`${i}-${j}`}>{renderSheetCell(row[j], h)}</td>)}</tr>)}</tbody></table></div> : <div className="emptySheet"><Upload size={36}/><b>ارفع ملف Excel لعرض القوائم</b><p>استخدم زر رفع شيت جديد بالأعلى.</p></div>}</section>}
-
-      {!['dashboard','portfolio','sheets'].includes(page) && <section className="panel placeholderPage"><h3>صفحة {nav.find(n => n[0] === page)?.[2]}</h3><p>سيتم ربط هذه الصفحة لاحقًا بقوائم Microsoft Lists أو شيتات Excel حسب اختيارك.</p></section>}
+      {page === 'portfolio' && <section className="projectsTable panel"><div className="tableTop"><a>عرض الكل <ChevronLeft size={17} /></a><h3>المشاريع</h3></div><table><thead><tr><th>المشروع</th><th>المدير</th><th>الحالة</th><th>الأولوية</th><th>نسبة الإنجاز</th><th>الموعد النهائي</th><th></th></tr></thead><tbody>{filteredProjects.map(p => <tr key={p.name}><td><span className="projectIcon"><Grid2X2 size={16} /></span>{p.name}</td><td><img src={p.avatar} />{p.manager}</td><td><StatusPill type={p.health}>{p.status}</StatusPill></td><td><PriorityPill value={p.priority}/></td><td><b>{p.progress}%</b><ProgressBar value={p.progress} /></td><td className={p.health === 'late' || p.health === 'risk' ? 'dateRed' : p.health === 'done' ? 'dateGreen' : ''}>{p.end}</td><td><MoreHorizontal size={20} /></td></tr>)}</tbody></table></section>}
+      {page === 'board' && <MondayBoard projects={filteredProjects} tasks={data.tasks}/>}      
+      {page === 'functions' && <FunctionPanel setPage={setPage}/>}      
+      {page === 'sheets' && <section className="sheetViewer panel"><div className="sheetHero"><div><h3>Databases & Lists</h3><p>قوائم منظمة بأسلوب Notion مع فلاتر وTags وViews.</p></div><div className="sheetMiniStats"><span><b>{data.sheets.length}</b> شيت</span><span><b>{totalRows}</b> صف</span><span><b>{totalCols}</b> عمود</span><span><b>{sheetRows.length}</b> نتيجة</span></div></div><div className="sheetControls enhanced"><div className="selectBlock"><label>اختر الشيت</label><select value={currentSheet?.name || ''} onChange={e => setActiveSheet(e.target.value)}>{data.sheets.length ? data.sheets.map(s => <option key={s.name} value={s.name}>{s.name} - {s.rows.length} صف</option>) : <option>ارفع ملف Excel أولاً</option>}</select></div><div className="selectBlock"><label>نوع العرض</label><select><option>جدول تفصيلي</option><option>Board / Kanban</option><option>Calendar</option><option>Timeline</option><option>عناصر تحتاج متابعة</option></select></div><div className="selectBlock"><label>حالة العناصر</label><select><option>كل الحالات</option><option>Open</option><option>In Progress</option><option>Blocked</option><option>Completed</option></select></div><div className="sheetSearch"><Search size={17} /><input value={sheetQuery} onChange={e => setSheetQuery(e.target.value)} placeholder="بحث داخل الشيت" /></div></div><div className="tabs compactTabs">{data.sheets.map(s => <button key={s.name} className={(currentSheet?.name === s.name) ? 'active' : ''} onClick={() => setActiveSheet(s.name)}>{s.name}<span>{s.rows.length}</span></button>)}</div>{currentSheet ? <div className="sheetTable enhancedTable"><table><thead><tr>{currentSheet.headers.map((h, index) => <th key={`${h}-${index}`}><span>{h}</span></th>)}</tr></thead><tbody>{sheetRows.map((row, i) => <tr key={i}>{currentSheet.headers.map((h, j) => <td className={cellTone(row[j], h)} key={`${i}-${j}`}>{renderSheetCell(row[j], h)}</td>)}</tr>)}</tbody></table></div> : <div className="emptySheet"><Upload size={36}/><b>ارفع ملف Excel لعرض القوائم</b><p>استخدم زر رفع شيت جديد بالأعلى.</p></div>}</section>}
+      {!['dashboard','portfolio','sheets','board','functions'].includes(page) && <section className="panel placeholderPage"><h3>صفحة {nav.find(n => n[0] === page)?.[2]}</h3><p>سيتم ربط هذه الصفحة لاحقًا بقوائم Microsoft Lists أو شيتات Excel حسب اختيارك.</p></section>}
     </main>
   </div>;
 }
