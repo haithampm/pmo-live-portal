@@ -1,48 +1,170 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import {
   AlertTriangle,
+  Archive,
+  ArrowUpRight,
   BarChart3,
   Bell,
-  BookOpen,
   BriefcaseBusiness,
+  Building2,
   CalendarDays,
   CheckCircle2,
   ChevronLeft,
+  ChevronRight,
   ClipboardCheck,
   Clock3,
   Copy,
+  Database,
   Download,
   Edit3,
   Eye,
   FileText,
   Filter,
   Folder,
+  Gauge,
   Grid2X2,
   Home,
   KanbanSquare,
+  Languages,
+  LayoutDashboard,
   LayoutList,
   LineChart,
+  Link as LinkIcon,
+  Mail,
+  MessageSquare,
   MoreHorizontal,
   Plus,
+  RefreshCcw,
   Search,
   Settings,
   Share2,
-  Table2,
+  ShieldCheck,
+  Sparkles,
+  Target,
   Trash2,
   Upload,
   Users,
+  Workflow,
 } from 'lucide-react';
 import './styles.css';
 
-const DEFAULT_PROJECTS = [
-  { name: 'تطوير بوابة العملاء', manager: 'أحمد العتيبي', avatar: 'https://i.pravatar.cc/60?img=12', status: 'متأخر', progress: 55, end: '2025/06/15', health: 'late', priority: 'High' },
-  { name: 'نظام ERP', manager: 'سارة المري', avatar: 'https://i.pravatar.cc/60?img=47', status: 'على المسار', progress: 72, end: '2025/07/30', health: 'on', priority: 'Medium' },
-  { name: 'تحديث البنية التحتية', manager: 'محمد الحربي', avatar: 'https://i.pravatar.cc/60?img=33', status: 'متعثّر', progress: 30, end: '2025/05/20', health: 'risk', priority: 'Critical' },
-  { name: 'تطبيق الهاتف المحمول', manager: 'منال الشريف', avatar: 'https://i.pravatar.cc/60?img=49', status: 'على المسار', progress: 80, end: '2025/08/10', health: 'on', priority: 'Medium' },
-  { name: 'تحليل البيانات والذكاء الاصطناعي', manager: 'علي القحطاني', avatar: 'https://i.pravatar.cc/60?img=11', status: 'مكتمل', progress: 100, end: '2025/04/30', health: 'done', priority: 'Low' },
+const COPY = {
+  ar: {
+    appName: 'Project Control Hub',
+    subtitle: 'نظام احترافي لإدارة المشاريع والفرق والملفات والتقارير',
+    search: 'بحث عام في النظام',
+    upload: 'رفع ملف Excel',
+    newItem: 'إضافة عنصر',
+    export: 'تصدير',
+    share: 'مشاركة',
+    refresh: 'تحديث',
+    dashboard: 'الرئيسية',
+    portfolio: 'المحفظة',
+    board: 'لوحة التحكم',
+    tasks: 'المهام',
+    risks: 'المخاطر',
+    teams: 'الفريق',
+    reports: 'التقارير',
+    files: 'الملفات',
+    databases: 'القوائم',
+    automation: 'الأتمتة',
+    settings: 'الإعدادات',
+    commandCenter: 'مركز التحكم التنفيذي',
+    commandDesc: 'متابعة مباشرة للمشاريع، الأولويات، المخاطر، المهام، الموارد والتقارير من مكان واحد.',
+    status: 'الحالة',
+    manager: 'المدير',
+    progress: 'الإنجاز',
+    all: 'الكل',
+    healthy: 'على المسار',
+    delayed: 'متأخر',
+    blocked: 'متعثر',
+    done: 'مكتمل',
+    projects: 'المشاريع',
+    openTasks: 'المهام المفتوحة',
+    highRisks: 'مخاطر عالية',
+    utilization: 'استخدام الموارد',
+    portfolioHealth: 'صحة المحفظة',
+    attention: 'تحتاج متابعة',
+    noData: 'ارفع ملف Excel لعرض بياناتك الحقيقية',
+    boardView: 'عرض كانبان',
+    tableView: 'عرض جدول',
+    timelineView: 'Timeline',
+    calendarView: 'تقويم',
+    detailView: 'تفصيلي',
+    project: 'المشروع',
+    owner: 'المالك',
+    due: 'الموعد',
+    priority: 'الأولوية',
+    actions: 'إجراءات',
+    sheetSelect: 'اختر القائمة',
+    viewType: 'نوع العرض',
+    workflow: 'سير العمل',
+    automationRules: 'قواعد التنبيه والمتابعة',
+  },
+  en: {
+    appName: 'Project Control Hub',
+    subtitle: 'Professional system for projects, teams, files, reporting and controls',
+    search: 'Search workspace',
+    upload: 'Upload Excel',
+    newItem: 'New item',
+    export: 'Export',
+    share: 'Share',
+    refresh: 'Refresh',
+    dashboard: 'Home',
+    portfolio: 'Portfolio',
+    board: 'Control Board',
+    tasks: 'Tasks',
+    risks: 'Risks',
+    teams: 'Team',
+    reports: 'Reports',
+    files: 'Files',
+    databases: 'Databases',
+    automation: 'Automation',
+    settings: 'Settings',
+    commandCenter: 'Executive Control Center',
+    commandDesc: 'Live control for projects, priorities, risks, tasks, resources and reporting in one workspace.',
+    status: 'Status',
+    manager: 'Manager',
+    progress: 'Progress',
+    all: 'All',
+    healthy: 'On Track',
+    delayed: 'Delayed',
+    blocked: 'Blocked',
+    done: 'Completed',
+    projects: 'Projects',
+    openTasks: 'Open Tasks',
+    highRisks: 'High Risks',
+    utilization: 'Utilization',
+    portfolioHealth: 'Portfolio Health',
+    attention: 'Attention',
+    noData: 'Upload Excel to show your real data',
+    boardView: 'Board',
+    tableView: 'Table',
+    timelineView: 'Timeline',
+    calendarView: 'Calendar',
+    detailView: 'Detailed',
+    project: 'Project',
+    owner: 'Owner',
+    due: 'Due',
+    priority: 'Priority',
+    actions: 'Actions',
+    sheetSelect: 'Select database',
+    viewType: 'View type',
+    workflow: 'Workflow',
+    automationRules: 'Automation & follow-up rules',
+  },
+};
+
+const SAMPLE_PROJECTS = [
+  { id: 'P-001', nameAr: 'بوابة العملاء', nameEn: 'Customer Portal', manager: 'Haitham Elmohamady', status: 'delayed', progress: 56, priority: 'High', due: '2026-06-15', budget: 72, utilization: 84, tasks: 18, risks: 3, files: 24 },
+  { id: 'P-002', nameAr: 'نظام ERP', nameEn: 'ERP System', manager: 'Sara Al-Mutairi', status: 'healthy', progress: 76, priority: 'Medium', due: '2026-07-30', budget: 64, utilization: 73, tasks: 12, risks: 1, files: 18 },
+  { id: 'P-003', nameAr: 'تحديث البنية التحتية', nameEn: 'Infrastructure Upgrade', manager: 'Mohammed Al-Harbi', status: 'blocked', progress: 31, priority: 'Critical', due: '2026-05-20', budget: 91, utilization: 96, tasks: 22, risks: 5, files: 37 },
+  { id: 'P-004', nameAr: 'تطبيق الهاتف', nameEn: 'Mobile App', manager: 'Manal Al-Sharif', status: 'healthy', progress: 82, priority: 'Medium', due: '2026-08-10', budget: 55, utilization: 68, tasks: 9, risks: 1, files: 15 },
+  { id: 'P-005', nameAr: 'تحليل البيانات والذكاء الاصطناعي', nameEn: 'AI Analytics', manager: 'Ali Al-Qahtani', status: 'done', progress: 100, priority: 'Low', due: '2026-04-30', budget: 49, utilization: 61, tasks: 4, risks: 0, files: 31 },
+  { id: 'P-006', nameAr: 'مركز التقارير التنفيذية', nameEn: 'Executive Reporting Center', manager: 'Noura Al-Rashid', status: 'healthy', progress: 69, priority: 'High', due: '2026-09-01', budget: 80, utilization: 77, tasks: 16, risks: 2, files: 20 },
 ];
 
 function norm(value) {
@@ -64,175 +186,251 @@ function sheetToRows(ws) {
   return { headers, rows };
 }
 
-function phaseProgress(text) {
+function inferStatus(progress, index) {
+  if (progress >= 96) return 'done';
+  if (progress >= 70) return 'healthy';
+  if (progress >= 45) return 'delayed';
+  if (index % 4 === 0) return 'blocked';
+  return 'delayed';
+}
+
+function progressFromText(text, fallback) {
   const value = norm(text).toLowerCase();
-  if (value.includes('تم') || value.includes('مكتمل') || value.includes('completed') || value.includes('support')) return 100;
-  if (value.includes('go') || value.includes('اطلاق')) return 85;
-  if (value.includes('deploy') || value.includes('انتاج')) return 75;
-  if (value.includes('develop') || value.includes('تطوير')) return 60;
-  if (value.includes('analysis') || value.includes('تحليل')) return 35;
-  if (value.includes('prepare') || value.includes('planning') || value.includes('تخطيط')) return 15;
-  return 50;
-}
-
-function projectHealth(progress) {
-  if (progress >= 90) return 'done';
-  if (progress >= 70) return 'on';
-  if (progress >= 45) return 'late';
-  return 'risk';
-}
-
-function healthStatus(health) {
-  return health === 'done' ? 'مكتمل' : health === 'on' ? 'على المسار' : health === 'late' ? 'متأخر' : 'متعثّر';
-}
-
-function priorityFromHealth(health) {
-  return health === 'risk' ? 'Critical' : health === 'late' ? 'High' : health === 'on' ? 'Medium' : 'Low';
+  const percent = value.match(/(\d{1,3})\s*%/);
+  if (percent) return Math.min(100, Number(percent[1]));
+  if (value.includes('completed') || value.includes('مكتمل') || value.includes('تم')) return 100;
+  if (value.includes('deployment') || value.includes('go') || value.includes('اطلاق')) return 82;
+  if (value.includes('development') || value.includes('تطوير')) return 62;
+  if (value.includes('analysis') || value.includes('تحليل')) return 36;
+  return fallback;
 }
 
 function parseWorkbook(workbook, fileName = 'Uploaded workbook') {
   const sheets = workbook.SheetNames.map(name => ({ name, ...sheetToRows(workbook.Sheets[name]) }));
   const erp = sheets.find(s => s.name === 'ERP Project');
-  const serviceSheets = sheets.filter(s => !['ERP Project', 'Radar', 'LOV'].includes(s.name));
-  const projectRows = erp?.rows || [];
-  const tasks = [];
-
-  serviceSheets.forEach(sheet => {
-    sheet.rows.forEach((row, idx) => {
-      const title = row[1] || row[0] || '';
-      const phase = row[2] || '';
-      const status = row[3] || row[4] || '';
-      const assignee = row[5] || row[6] || 'غير محدد';
-      const note = row[7] || row[8] || '';
-      if (!title || title === sheet.name) return;
-      const progress = phaseProgress(`${phase} ${status}`);
-      const health = projectHealth(progress);
-      tasks.push({ id: `${sheet.name}-${idx}`, project: sheet.name, title, phase, status: status || 'مفتوح', assignee, note, progress, health, priority: priorityFromHealth(health) });
-    });
+  const rows = erp?.rows?.length ? erp.rows : sheets.flatMap(s => s.rows.slice(0, 3));
+  const projects = rows.slice(0, 50).map((row, index) => {
+    const text = row.join(' ');
+    const fallback = Math.min(100, Math.max(18, 34 + ((index * 13) % 66)));
+    const progress = progressFromText(text, fallback);
+    const status = inferStatus(progress, index);
+    return {
+      id: `P-${String(index + 1).padStart(3, '0')}`,
+      nameAr: row[1] || row[0] || `مشروع ${index + 1}`,
+      nameEn: row[1] || row[0] || `Project ${index + 1}`,
+      manager: row[7] || row[6] || 'Project Manager',
+      status,
+      progress,
+      priority: status === 'blocked' ? 'Critical' : status === 'delayed' ? 'High' : status === 'healthy' ? 'Medium' : 'Low',
+      due: row[10] || row[9] || '2026-12-30',
+      budget: Math.min(100, 45 + ((index * 9) % 55)),
+      utilization: Math.min(100, 50 + ((index * 7) % 45)),
+      tasks: 5 + ((index * 3) % 24),
+      risks: status === 'blocked' ? 5 : status === 'delayed' ? 2 : status === 'healthy' ? 1 : 0,
+      files: 10 + ((index * 4) % 36),
+    };
   });
-
-  const grouped = tasks.reduce((acc, t) => {
-    acc[t.project] = acc[t.project] || [];
-    acc[t.project].push(t);
-    return acc;
-  }, {});
-
-  const projects = projectRows.length ? projectRows.slice(0, 40).map((row, i) => {
-    const name = row[1] || row[0] || `مشروع ${i + 1}`;
-    const manager = row[7] || row[6] || 'مدير المشروع';
-    const projectTasks = grouped[name] || [];
-    const progress = projectTasks.length ? Math.round(projectTasks.reduce((a, t) => a + t.progress, 0) / projectTasks.length) : Math.min(100, Math.max(20, 35 + ((i * 11) % 65)));
-    const health = projectHealth(progress);
-    return { name, manager, avatar: `https://i.pravatar.cc/60?img=${(i % 50) + 1}`, status: healthStatus(health), progress, end: row[10] || row[9] || '2025/07/30', health, tasks: projectTasks.length, priority: priorityFromHealth(health) };
-  }) : DEFAULT_PROJECTS;
-
-  return { workbook: fileName, sheets, projects, tasks };
+  return { workbook: fileName, sheets, projects: projects.length ? projects : SAMPLE_PROJECTS };
 }
 
-function StatusPill({ type, children }) {
-  return <span className={`statusPill ${type}`}>{children}</span>;
+function projectName(project, lang) {
+  return lang === 'ar' ? project.nameAr : project.nameEn;
 }
 
-function PriorityPill({ value }) {
-  return <span className={`priorityPill ${String(value).toLowerCase()}`}>{value}</span>;
+function statusLabel(status, lang) {
+  const labels = {
+    ar: { healthy: 'على المسار', delayed: 'متأخر', blocked: 'متعثر', done: 'مكتمل' },
+    en: { healthy: 'On Track', delayed: 'Delayed', blocked: 'Blocked', done: 'Completed' },
+  };
+  return labels[lang][status] || status;
 }
 
-function TopMetric({ title, value, delta, icon: Icon, tone }) {
-  return <motion.div className="topMetric" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}><div className={`metricBadge ${tone}`}><Icon size={22} /></div><p>{title}</p><strong>{value}</strong><span className={delta?.includes('▼') ? 'down' : 'up'}>{delta}</span></motion.div>;
+function priorityLabel(priority, lang) {
+  const labels = {
+    ar: { Critical: 'حرج', High: 'عالي', Medium: 'متوسط', Low: 'منخفض' },
+    en: { Critical: 'Critical', High: 'High', Medium: 'Medium', Low: 'Low' },
+  };
+  return labels[lang][priority] || priority;
 }
 
-function ProgressBar({ value, tone = 'blue' }) {
-  return <div className="progressLine"><i className={tone} style={{ width: `${Math.max(0, Math.min(100, value || 0))}%` }} /></div>;
+function Chip({ type, children }) {
+  return <span className={`chip ${type}`}>{children}</span>;
+}
+
+function Progress({ value, tone = 'blue' }) {
+  return <div className="progress"><span><i className={tone} style={{ width: `${Math.max(0, Math.min(100, value || 0))}%` }} /></span><b>{value || 0}%</b></div>;
 }
 
 function cellTone(value, header = '') {
   const text = norm(value).toLowerCase();
   const head = norm(header).toLowerCase();
   if (!text) return '';
-  if (text.includes('مكتمل') || text.includes('تم') || text.includes('done') || text.includes('completed') || text.includes('على المسار')) return 'cellSuccess';
-  if (text.includes('متأخر') || text.includes('تعثر') || text.includes('متعثر') || text.includes('critical') || text.includes('high') || text.includes('blocked')) return 'cellDanger';
-  if (text.includes('انتظار') || text.includes('تحت') || text.includes('قيد') || text.includes('تحليل') || text.includes('medium')) return 'cellWarning';
-  if (head.includes('date') || head.includes('تاريخ') || text.match(/^\d{4}[/-]\d{1,2}[/-]\d{1,2}/)) return 'cellDate';
-  if (text.includes('%') || head.includes('progress') || head.includes('نسبة')) return 'cellProgress';
+  if (text.includes('completed') || text.includes('مكتمل') || text.includes('تم') || text.includes('on track')) return 'successCell';
+  if (text.includes('blocked') || text.includes('critical') || text.includes('متعثر') || text.includes('حرج')) return 'dangerCell';
+  if (text.includes('delayed') || text.includes('high') || text.includes('متأخر') || text.includes('قيد')) return 'warningCell';
+  if (head.includes('date') || head.includes('تاريخ')) return 'dateCell';
+  if (head.includes('progress') || head.includes('نسبة') || text.includes('%')) return 'progressCell';
   return '';
 }
 
-function renderSheetCell(value, header) {
+function renderCell(value, header) {
   const text = norm(value);
-  if (!text) return <span className="mutedCell">—</span>;
-  const tone = cellTone(text, header);
+  if (!text) return <span className="emptyValue">—</span>;
   const numeric = Number(text.replace('%', ''));
-  if ((tone === 'cellProgress' || norm(header).toLowerCase().includes('progress') || norm(header).includes('نسبة')) && !Number.isNaN(numeric)) {
-    const valueNum = Math.max(0, Math.min(100, numeric));
-    return <div className="sheetProgress"><b>{valueNum}%</b><span><i style={{ width: `${valueNum}%` }} /></span></div>;
-  }
-  if (tone === 'cellSuccess' || tone === 'cellDanger' || tone === 'cellWarning') return <span className={`sheetChip ${tone}`}>{text}</span>;
-  if (text.startsWith('http')) return <a className="sheetLink" href={text} target="_blank" rel="noreferrer">فتح الرابط</a>;
+  if ((cellTone(text, header) === 'progressCell' || norm(header).toLowerCase().includes('progress')) && !Number.isNaN(numeric)) return <Progress value={numeric} />;
+  if (text.startsWith('http')) return <a className="linkPill" href={text} target="_blank" rel="noreferrer"><LinkIcon size={13}/>Open</a>;
+  const tone = cellTone(text, header);
+  if (['successCell', 'dangerCell', 'warningCell'].includes(tone)) return <span className={`miniChip ${tone}`}>{text}</span>;
   return text;
 }
 
-function Donut({ projects }) {
+function StatCard({ icon: Icon, title, value, sub, tone }) {
+  return <motion.div className="statCard" whileHover={{ y: -4 }}><div className={`statIcon ${tone}`}><Icon size={22}/></div><div><p>{title}</p><strong>{value}</strong><span>{sub}</span></div></motion.div>;
+}
+
+function CommandButton({ icon: Icon, label, tone = '', onClick }) {
+  return <button className={`commandButton ${tone}`} onClick={onClick}><Icon size={16}/><span>{label}</span></button>;
+}
+
+function TopBar({ t, lang, setLang, uploadWorkbook }) {
+  return <header className="topBar"><div className="brand"><div className="brandLogo"><Workflow size={23}/></div><div><b>{t.appName}</b><span>{t.subtitle}</span></div></div><div className="globalSearch"><Search size={18}/><input placeholder={t.search}/></div><div className="topActions"><label className="uploadBtn"><Upload size={16}/>{t.upload}<input type="file" accept=".xlsx,.xls,.xlsm" onChange={uploadWorkbook}/></label><button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}><Languages size={17}/>{lang === 'ar' ? 'EN' : 'AR'}</button><button><Bell size={17}/></button><button><Settings size={17}/></button></div></header>;
+}
+
+function Sidebar({ t, page, setPage }) {
+  const nav = [
+    ['dashboard', Home, t.dashboard],
+    ['portfolio', BriefcaseBusiness, t.portfolio],
+    ['board', KanbanSquare, t.board],
+    ['tasks', ClipboardCheck, t.tasks],
+    ['risks', AlertTriangle, t.risks],
+    ['teams', Users, t.teams],
+    ['reports', BarChart3, t.reports],
+    ['files', Folder, t.files],
+    ['databases', Database, t.databases],
+    ['automation', Workflow, t.automation],
+    ['settings', Settings, t.settings],
+  ];
+  return <aside className="sidebar"><div className="workspaceCard"><Sparkles size={18}/><div><b>PMO Workspace</b><span>Solution Management</span></div></div><nav>{nav.map(([key, Icon, label]) => <button key={key} className={page === key ? 'active' : ''} onClick={() => setPage(key)}><Icon size={18}/><span>{label}</span></button>)}</nav><div className="sideNote"><ShieldCheck size={18}/><p>Secure by links and Microsoft/OneDrive permissions.</p></div></aside>;
+}
+
+function PageHeader({ t, page, setPage }) {
+  return <section className="pageHero"><div><div className="breadcrumb"><Home size={14}/><span>PMO</span><ChevronLeft size={14}/><span>{page}</span></div><h1>{t.commandCenter}</h1><p>{t.commandDesc}</p></div><div className="heroActions"><CommandButton icon={Plus} label={t.newItem} tone="primary"/><CommandButton icon={RefreshCcw} label={t.refresh}/><CommandButton icon={Download} label={t.export}/><CommandButton icon={Share2} label={t.share}/></div></section>;
+}
+
+function Dashboard({ t, lang, projects, setPage }) {
+  const total = projects.length;
+  const openTasks = projects.reduce((a, p) => a + p.tasks, 0);
+  const highRisks = projects.reduce((a, p) => a + p.risks, 0);
+  const avg = total ? Math.round(projects.reduce((a, p) => a + p.progress, 0) / total) : 0;
+  const util = total ? Math.round(projects.reduce((a, p) => a + p.utilization, 0) / total) : 0;
+  return <>
+    <section className="commandCenter">
+      <div className="quickCommands">
+        <CommandButton icon={Plus} label={lang === 'ar' ? 'مشروع جديد' : 'New project'} tone="primary"/>
+        <CommandButton icon={LayoutList} label={t.tableView} onClick={() => setPage('portfolio')}/>
+        <CommandButton icon={KanbanSquare} label={t.boardView} onClick={() => setPage('board')}/>
+        <CommandButton icon={CalendarDays} label={t.calendarView}/>
+        <CommandButton icon={BarChart3} label={lang === 'ar' ? 'تحليل المحفظة' : 'Portfolio analysis'}/>
+        <CommandButton icon={Mail} label={lang === 'ar' ? 'تقرير أسبوعي' : 'Weekly report'}/>
+      </div>
+    </section>
+    <section className="statsGrid">
+      <StatCard icon={BriefcaseBusiness} title={t.projects} value={total} sub={t.portfolioHealth} tone="blue" />
+      <StatCard icon={ClipboardCheck} title={t.openTasks} value={openTasks} sub={t.attention} tone="green" />
+      <StatCard icon={AlertTriangle} title={t.highRisks} value={highRisks} sub={t.attention} tone="red" />
+      <StatCard icon={Gauge} title={t.progress} value={`${avg}%`} sub={t.portfolioHealth} tone="purple" />
+      <StatCard icon={Users} title={t.utilization} value={`${util}%`} sub="Team capacity" tone="amber" />
+    </section>
+    <section className="dashboardGridPro">
+      <PortfolioPulse t={t} projects={projects}/>
+      <SmartAlerts t={t} lang={lang} projects={projects}/>
+      <WorkflowPanel t={t} lang={lang}/>
+    </section>
+    <ProjectTable t={t} lang={lang} projects={projects.slice(0, 6)}/>
+  </>;
+}
+
+function PortfolioPulse({ t, projects }) {
   const total = projects.length || 1;
-  const on = projects.filter(p => p.health === 'on').length;
-  const late = projects.filter(p => p.health === 'late').length;
-  const risk = projects.filter(p => p.health === 'risk').length;
-  const done = projects.filter(p => p.health === 'done').length;
-  return <div className="donutWrap"><div className="donut dynamic" style={{ background: `conic-gradient(#448361 0 ${(on / total) * 100}%, #cb912f ${(on / total) * 100}% ${((on + late) / total) * 100}%, #d44c47 ${((on + late) / total) * 100}% ${((on + late + risk) / total) * 100}%, #9b9a97 ${((on + late + risk) / total) * 100}% 100%)` }}><span /></div><div className="legend"><p><i className="greenDot" />على المسار: {on}</p><p><i className="amberDot" />متأخر: {late}</p><p><i className="redDot" />متعثر: {risk}</p><p><i className="grayDot" />مكتمل: {done}</p></div><b>إجمالي المشاريع: {projects.length}</b></div>;
+  const counts = {
+    healthy: projects.filter(p => p.status === 'healthy').length,
+    delayed: projects.filter(p => p.status === 'delayed').length,
+    blocked: projects.filter(p => p.status === 'blocked').length,
+    done: projects.filter(p => p.status === 'done').length,
+  };
+  return <div className="panelPro pulsePanel"><div className="panelHeader"><h3>{t.portfolioHealth}</h3><MoreHorizontal size={18}/></div><div className="pulseBody"><div className="donutPro" style={{ background: `conic-gradient(#448361 0 ${(counts.healthy/total)*100}%, #cb912f ${(counts.healthy/total)*100}% ${((counts.healthy+counts.delayed)/total)*100}%, #d44c47 ${((counts.healthy+counts.delayed)/total)*100}% ${((counts.healthy+counts.delayed+counts.blocked)/total)*100}%, #9b9a97 ${((counts.healthy+counts.delayed+counts.blocked)/total)*100}% 100%)` }}><span>{projects.length}</span></div><div className="legendPro"><p><i className="green"/>{t.healthy}<b>{counts.healthy}</b></p><p><i className="amber"/>{t.delayed}<b>{counts.delayed}</b></p><p><i className="red"/>{t.blocked}<b>{counts.blocked}</b></p><p><i className="gray"/>{t.done}<b>{counts.done}</b></p></div></div></div>;
 }
 
-function ActionButton({ icon: Icon, label, tone = '' }) {
-  return <button className={`actionButton ${tone}`}><Icon size={16}/>{label}</button>;
+function SmartAlerts({ t, lang, projects }) {
+  const alerts = projects.filter(p => p.status === 'blocked' || p.status === 'delayed').slice(0, 4);
+  return <div className="panelPro"><div className="panelHeader"><h3>{t.automationRules}</h3><Bell size={18}/></div><div className="alertList">{alerts.map(p => <div className="alertItem" key={p.id}><span className={`alertDot ${p.status}`}/><div><b>{projectName(p, lang)}</b><p>{lang === 'ar' ? 'تحتاج متابعة وتحديث خطة العمل' : 'Needs follow-up and action plan update'}</p></div><Chip type={p.status}>{statusLabel(p.status, lang)}</Chip></div>)}</div></div>;
 }
 
-function BoardCard({ item }) {
-  return <div className="boardCard"><div className="boardCardTop"><b>{item.name || item.title}</b><MoreHorizontal size={16}/></div><p>{item.manager || item.assignee || 'غير محدد'}</p><ProgressBar value={item.progress || 0}/><div className="boardMeta"><PriorityPill value={item.priority || 'Medium'} /><span>{item.progress || 0}%</span></div></div>;
+function WorkflowPanel({ t, lang }) {
+  const steps = lang === 'ar' ? ['تسجيل الطلب', 'تحليل', 'تطوير', 'اختبار', 'إطلاق', 'دعم'] : ['Intake', 'Analysis', 'Build', 'Test', 'Go Live', 'Support'];
+  return <div className="panelPro"><div className="panelHeader"><h3>{t.workflow}</h3><Workflow size={18}/></div><div className="workflowSteps">{steps.map((s, i) => <div key={s} className={i < 3 ? 'active' : ''}><span>{i + 1}</span><p>{s}</p></div>)}</div></div>;
 }
 
-function MondayBoard({ projects, tasks }) {
+function ProjectTable({ t, lang, projects }) {
+  return <section className="panelPro tablePanel"><div className="panelHeader"><h3>{t.portfolio}</h3><div className="viewTabs"><button className="active">{t.tableView}</button><button>{t.detailView}</button></div></div><div className="tableWrap"><table><thead><tr><th>{t.project}</th><th>{t.owner}</th><th>{t.status}</th><th>{t.priority}</th><th>{t.progress}</th><th>{t.due}</th><th>{t.actions}</th></tr></thead><tbody>{projects.map(p => <tr key={p.id}><td><div className="projectTitle"><span>{p.id}</span><b>{projectName(p, lang)}</b></div></td><td>{p.manager}</td><td><Chip type={p.status}>{statusLabel(p.status, lang)}</Chip></td><td><Chip type={p.priority.toLowerCase()}>{priorityLabel(p.priority, lang)}</Chip></td><td><Progress value={p.progress}/></td><td>{p.due}</td><td><div className="rowActions"><Eye size={16}/><Edit3 size={16}/><MoreHorizontal size={16}/></div></td></tr>)}</tbody></table></div></section>;
+}
+
+function BoardPage({ t, lang, projects }) {
   const columns = [
-    ['risk', 'متعثر / Critical', projects.filter(p => p.health === 'risk')],
-    ['late', 'متأخر / High', projects.filter(p => p.health === 'late')],
-    ['on', 'على المسار', projects.filter(p => p.health === 'on')],
-    ['done', 'مكتمل', projects.filter(p => p.health === 'done')],
+    ['blocked', t.blocked, projects.filter(p => p.status === 'blocked')],
+    ['delayed', t.delayed, projects.filter(p => p.status === 'delayed')],
+    ['healthy', t.healthy, projects.filter(p => p.status === 'healthy')],
+    ['done', t.done, projects.filter(p => p.status === 'done')],
   ];
-  return <div className="mondayBoard">{columns.map(([key, title, items]) => <div className={`boardColumn ${key}`} key={key}><div className="boardColumnHead"><span>{title}</span><b>{items.length}</b></div>{items.slice(0, 8).map(item => <BoardCard key={item.name} item={item}/>)}{items.length === 0 && <div className="emptyColumn">لا توجد عناصر</div>}</div>)}</div>;
+  return <section className="boardPage">{columns.map(([key, label, items]) => <div className={`boardColumn ${key}`} key={key}><div className="boardHead"><b>{label}</b><span>{items.length}</span></div>{items.map(p => <div className="taskCard" key={p.id}><div className="taskTop"><b>{projectName(p, lang)}</b><MoreHorizontal size={16}/></div><p>{p.manager}</p><Progress value={p.progress}/><div className="taskMeta"><Chip type={p.priority.toLowerCase()}>{priorityLabel(p.priority, lang)}</Chip><span>{p.due}</span></div></div>)}</div>)}</section>;
 }
 
-function FunctionPanel({ setPage }) {
+function DatabasesPage({ t, lang, data, activeSheet, setActiveSheet, sheetQuery, setSheetQuery }) {
+  const currentSheet = data.sheets.find(s => s.name === activeSheet) || data.sheets[0];
+  const rows = currentSheet ? currentSheet.rows.filter(row => row.some(cell => norm(cell).toLowerCase().includes(sheetQuery.toLowerCase()))).slice(0, 160) : [];
+  return <section className="panelPro databasePage"><div className="databaseHero"><div><h3>{lang === 'ar' ? 'Databases وقوائم التحكم' : 'Databases & Control Lists'}</h3><p>{lang === 'ar' ? 'كل الشيتات تتحول إلى قوائم احترافية شبيهة Notion مع فلاتر وViews.' : 'Excel sheets become Notion-like databases with filters and views.'}</p></div><div className="dbStats"><span><b>{data.sheets.length}</b>{lang === 'ar' ? 'شيت' : 'Sheets'}</span><span><b>{currentSheet?.rows?.length || 0}</b>{lang === 'ar' ? 'صف' : 'Rows'}</span><span><b>{currentSheet?.headers?.length || 0}</b>{lang === 'ar' ? 'عمود' : 'Fields'}</span><span><b>{rows.length}</b>{lang === 'ar' ? 'نتيجة' : 'Results'}</span></div></div><div className="databaseToolbar"><div className="field"><label>{t.sheetSelect}</label><select value={currentSheet?.name || ''} onChange={e => setActiveSheet(e.target.value)}>{data.sheets.length ? data.sheets.map(s => <option key={s.name} value={s.name}>{s.name} - {s.rows.length}</option>) : <option>{lang === 'ar' ? 'ارفع ملف أولاً' : 'Upload a file first'}</option>}</select></div><div className="field"><label>{t.viewType}</label><select><option>{t.tableView}</option><option>{t.boardView}</option><option>{t.calendarView}</option><option>{t.timelineView}</option></select></div><div className="databaseSearch"><Search size={16}/><input value={sheetQuery} onChange={e => setSheetQuery(e.target.value)} placeholder={t.search}/></div></div><div className="databaseTabs">{data.sheets.map(s => <button key={s.name} className={currentSheet?.name === s.name ? 'active' : ''} onClick={() => setActiveSheet(s.name)}>{s.name}<span>{s.rows.length}</span></button>)}</div>{currentSheet ? <div className="tableWrap databaseTable"><table><thead><tr>{currentSheet.headers.map((h, i) => <th key={`${h}-${i}`}>{h}</th>)}</tr></thead><tbody>{rows.map((row, i) => <tr key={i}>{currentSheet.headers.map((h, j) => <td key={`${i}-${j}`} className={cellTone(row[j], h)}>{renderCell(row[j], h)}</td>)}</tr>)}</tbody></table></div> : <div className="emptyState"><Upload size={36}/><b>{t.noData}</b></div>}</section>;
+}
+
+function FunctionPage({ t, lang }) {
   const actions = [
-    [Plus, 'إضافة عنصر', 'primary'], [Filter, 'فلترة متقدمة', ''], [LayoutList, 'عرض جدول', ''], [KanbanSquare, 'عرض كانبان', ''], [CalendarDays, 'تقويم', ''], [BarChart3, 'تحليل', ''], [Copy, 'نسخ', ''], [Eye, 'معاينة', ''], [Edit3, 'تعديل', ''], [Trash2, 'حذف', 'danger'], [Download, 'تصدير', ''], [Share2, 'مشاركة', '']
+    [Plus, lang === 'ar' ? 'إضافة مشروع' : 'Add project', 'primary'],
+    [ClipboardCheck, lang === 'ar' ? 'إضافة مهمة' : 'Add task', ''],
+    [AlertTriangle, lang === 'ar' ? 'تسجيل مخاطرة' : 'Log risk', 'danger'],
+    [FileText, lang === 'ar' ? 'تقرير أسبوعي' : 'Weekly report', ''],
+    [CalendarDays, lang === 'ar' ? 'جدولة اجتماع' : 'Schedule meeting', ''],
+    [MessageSquare, lang === 'ar' ? 'إرسال تنبيه' : 'Send alert', ''],
+    [Filter, lang === 'ar' ? 'فلتر متقدم' : 'Advanced filter', ''],
+    [Copy, lang === 'ar' ? 'نسخ قالب' : 'Duplicate template', ''],
+    [Archive, lang === 'ar' ? 'أرشفة' : 'Archive', ''],
+    [Trash2, lang === 'ar' ? 'حذف' : 'Delete', 'danger'],
+    [Download, t.export, ''],
+    [Share2, t.share, ''],
   ];
-  return <section className="functionPanel panel"><div className="functionHead"><div><h3>أدوات التشغيل</h3><p>Buttons & functions بشكل قريب من Notion و Monday.</p></div><button onClick={()=>setPage('sheets')}>فتح القوائم</button></div><div className="functionGrid">{actions.map(([Icon, label, tone]) => <ActionButton key={label} icon={Icon} label={label} tone={tone}/>)}</div></section>;
+  return <section className="panelPro functionsPage"><div className="databaseHero"><div><h3>{lang === 'ar' ? 'مركز الفانكشن والتحكم' : 'Functions & Controls Center'}</h3><p>{lang === 'ar' ? 'أزرار تشغيل جاهزة لإدارة المشاريع والمهام والمخاطر والتقارير.' : 'Operational buttons for project, task, risk and reporting control.'}</p></div></div><div className="functionsGrid">{actions.map(([Icon, label, tone]) => <CommandButton key={label} icon={Icon} label={label} tone={tone}/>)}</div></section>;
+}
+
+function Placeholder({ label, lang }) {
+  return <section className="panelPro placeholder"><Sparkles size={34}/><h3>{label}</h3><p>{lang === 'ar' ? 'صفحة جاهزة للتطوير والربط مع القوائم، الملفات، Microsoft Lists، أو Excel.' : 'Ready page for linking databases, files, Microsoft Lists or Excel.'}</p></section>;
 }
 
 function App() {
-  const [data, setData] = React.useState({ workbook: 'Sample dashboard', sheets: [], projects: DEFAULT_PROJECTS, tasks: [] });
+  const [lang, setLang] = React.useState('ar');
   const [page, setPage] = React.useState('dashboard');
-  const [sheetQuery, setSheetQuery] = React.useState('');
+  const [data, setData] = React.useState({ workbook: 'Sample PMO Workspace', sheets: [], projects: SAMPLE_PROJECTS });
   const [activeSheet, setActiveSheet] = React.useState('');
-  const [statusFilter, setStatusFilter] = React.useState('الكل');
-  const [managerFilter, setManagerFilter] = React.useState('الكل');
-  const [progressFilter, setProgressFilter] = React.useState('الكل');
-  const [viewMode, setViewMode] = React.useState('table');
-  const currentSheet = data.sheets.find(s => s.name === activeSheet) || data.sheets[0];
-  const projects = data.projects;
-
-  const managers = ['الكل', ...Array.from(new Set(projects.map(p => p.manager).filter(Boolean))).slice(0, 30)];
-  const filteredProjects = projects.filter(p => {
-    const statusOk = statusFilter === 'الكل' || p.status === statusFilter;
-    const managerOk = managerFilter === 'الكل' || p.manager === managerFilter;
-    const progressOk = progressFilter === 'الكل' || (progressFilter === 'أقل من 50%' ? p.progress < 50 : progressFilter === '50% - 80%' ? p.progress >= 50 && p.progress <= 80 : p.progress > 80);
+  const [sheetQuery, setSheetQuery] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState('all');
+  const [managerFilter, setManagerFilter] = React.useState('all');
+  const [progressFilter, setProgressFilter] = React.useState('all');
+  const t = COPY[lang];
+  const dir = lang === 'ar' ? 'rtl' : 'ltr';
+  const managers = ['all', ...Array.from(new Set(data.projects.map(p => p.manager)))];
+  const filtered = data.projects.filter(p => {
+    const statusOk = statusFilter === 'all' || p.status === statusFilter;
+    const managerOk = managerFilter === 'all' || p.manager === managerFilter;
+    const progressOk = progressFilter === 'all' || (progressFilter === 'low' ? p.progress < 50 : progressFilter === 'mid' ? p.progress >= 50 && p.progress <= 80 : p.progress > 80);
     return statusOk && managerOk && progressOk;
   });
-  const sheetRows = currentSheet ? currentSheet.rows.filter(row => row.some(cell => norm(cell).toLowerCase().includes(sheetQuery.toLowerCase()))).slice(0, 120) : [];
-  const totalRows = currentSheet?.rows?.length || 0;
-  const totalCols = currentSheet?.headers?.length || 0;
-
-  const avgProgress = filteredProjects.length ? Math.round(filteredProjects.reduce((a, p) => a + p.progress, 0) / filteredProjects.length) : 0;
-  const onCount = filteredProjects.filter(p => p.health === 'on').length;
-  const riskCount = filteredProjects.filter(p => p.health === 'risk').length;
-  const lateCount = filteredProjects.filter(p => p.health === 'late').length;
-  const doneCount = filteredProjects.filter(p => p.health === 'done').length;
 
   async function uploadWorkbook(event) {
     const file = event.target.files?.[0];
@@ -242,44 +440,20 @@ function App() {
     const parsed = parseWorkbook(workbook, file.name);
     setData(parsed);
     setActiveSheet(parsed.sheets[0]?.name || '');
-    setPage('sheets');
+    setPage('databases');
   }
 
-  const nav = [
-    ['dashboard', Home, 'الصفحة الرئيسية'],
-    ['portfolio', Folder, 'المحفظة والمشاريع'],
-    ['board', KanbanSquare, 'لوحة Monday'],
-    ['functions', Settings, 'الأزرار والفانكشن'],
-    ['sheets', Table2, 'قوائم الشيتات'],
-    ['tasks', ClipboardCheck, 'المهام'],
-    ['reports', BarChart3, 'التقارير ولوحات المعلومات'],
-    ['documents', FileText, 'المستندات'],
-    ['approvals', CheckCircle2, 'الموافقات'],
-    ['resources', Users, 'الموارد والقدرات'],
-    ['risks', AlertTriangle, 'المخاطر والمشكلات'],
-    ['lessons', BookOpen, 'الدروس المستفادة'],
-  ];
-
-  return <div className="spPage" dir="rtl">
-    <header className="spTopBar"><div className="topIcons"><img src="https://i.pravatar.cc/48?img=13" /><Settings size={21} /><span>؟</span><Bell size={20} /></div><div className="spSearch"><Search size={19} /><input placeholder="البحث في هذا الموقع" /></div><div className="spBrand"><b>PMO Workspace</b><Grid2X2 size={24} /></div></header>
-    <aside className="rightNav">{nav.map(([key, Icon, label]) => <a key={key} className={page === key ? 'active' : ''} onClick={() => setPage(key)}><Icon size={22} />{label}</a>)}<a className="edit"><Edit3 size={20} />تحرير</a><a className="back"><ChevronLeft size={20} />عودة إلى SharePoint</a></aside>
-
-    <main className="spContent">
-      <section className="pageHeader"><div className="headerIcon"><BriefcaseBusiness size={44} /></div><div><h1>بوابة إدارة المشاريع</h1><p>{page === 'dashboard' ? 'Dashboard ديناميكي بأسلوب Notion / Monday' : page === 'sheets' ? 'قوائم وDatabases للشيتات' : page === 'board' ? 'لوحة كانبان احترافية مثل Monday' : page === 'functions' ? 'مركز الأزرار والفانكشن' : 'صفحة مستقلة لإدارة بيانات المحفظة'}</p></div></section>
-      <section className="commandBar"><label className="primaryCmd"><Plus size={20} />رفع شيت جديد<input type="file" accept=".xlsx,.xls,.xlsm" onChange={uploadWorkbook} /></label><button onClick={()=>setPage('functions')}><Settings size={18} />الفانكشن</button><button onClick={()=>setPage('board')}><KanbanSquare size={18} />Monday Board</button><button><Download size={18} />تصدير</button><button><Share2 size={18} />مشاركة</button><span className="workbookName">{data.workbook}</span></section>
-
-      {page === 'dashboard' && <>
-        <FunctionPanel setPage={setPage}/>
-        <section className="filterBar panel"><div><Filter size={18}/><b>فلاتر الداشبورد</b></div><select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option>الكل</option><option>على المسار</option><option>متأخر</option><option>متعثّر</option><option>مكتمل</option></select><select value={managerFilter} onChange={e=>setManagerFilter(e.target.value)}>{managers.map(m => <option key={m}>{m}</option>)}</select><select value={progressFilter} onChange={e=>setProgressFilter(e.target.value)}><option>الكل</option><option>أقل من 50%</option><option>50% - 80%</option><option>أكثر من 80%</option></select><div className="viewToggle"><button className={viewMode==='table'?'active':''} onClick={()=>setViewMode('table')}><LayoutList size={16}/>جدول</button><button className={viewMode==='board'?'active':''} onClick={()=>setViewMode('board')}><KanbanSquare size={16}/>كانبان</button></div></section>
-        <section className="kpiGrid"><TopMetric title="عدد المشاريع" value={filteredProjects.length} delta="حسب الفلاتر الحالية" icon={Folder} tone="blue" /><TopMetric title="المشاريع المتأخرة" value={lateCount} delta="تحتاج متابعة" icon={Clock3} tone="red" /><TopMetric title="المشاريع عالية المخاطر" value={riskCount} delta="تحتاج تصعيد" icon={AlertTriangle} tone="orange" /><TopMetric title="نسبة الإنجاز" value={`${avgProgress}%`} delta="متوسط المحفظة" icon={LineChart} tone="green" /><TopMetric title="على المسار" value={onCount} delta="حالة مستقرة" icon={Users} tone="purple" /><TopMetric title="مكتملة" value={doneCount} delta="تم الانتهاء" icon={FileText} tone="cyan" /></section>
-        {viewMode === 'board' ? <MondayBoard projects={filteredProjects} tasks={data.tasks}/> : <section className="dashboardGrid"><div className="panel chartPanel"><div className="panelHead"><MoreHorizontal size={22} /><h3>توزيع حالة المشاريع</h3></div><Donut projects={filteredProjects} /></div><div className="panel summaryPanel"><div className="panelHead"><BriefcaseBusiness size={22} /><h3>ملخص المحفظة الديناميكي</h3></div><div className="portfolioStats"><div><CheckCircle2 className="greenIcon" /><b>{onCount}</b><span>على المسار</span></div><div><AlertTriangle className="redIcon" /><b>{riskCount}</b><span>متعثر</span></div><div><Clock3 className="amberIcon" /><b>{lateCount}</b><span>متأخر</span></div><div><CheckCircle2 className="grayIcon" /><b>{doneCount}</b><span>مكتمل</span></div></div><div className="dualProgress"><div><p>نسبة الإنجاز الإجمالية <b>{avgProgress}%</b></p><ProgressBar value={avgProgress} /></div><div><p>عدد المهام المستخرجة <b>{data.tasks?.length || 0}</b></p><ProgressBar value={Math.min(100, (data.tasks?.length || 0) / 5)} tone="purple" /></div></div></div><div className="panel alertPanel"><div className="panelHead"><Bell size={22} /><h3>تنبيهات ومتابعات</h3></div><div className="alerts"><div><span className="alertIcon red"><AlertTriangle /></span><p><b>{riskCount} مشروع متعثر</b><small>راجع صفحة المحفظة والمشاريع</small></p><em>الآن</em></div><div><span className="alertIcon amber"><AlertTriangle /></span><p><b>{lateCount} مشروع متأخر</b><small>تحتاج خطة معالجة</small></p><em>الآن</em></div><div><span className="alertIcon orange"><CalendarDays /></span><p><b>{data.sheets.length} شيت متاح</b><small>افتح صفحة قوائم الشيتات</small></p><em>الآن</em></div></div><a className="allAlerts" onClick={()=>setPage('sheets')}>عرض الشيتات <ChevronLeft size={17} /></a></div></section>}
-      </>}
-
-      {page === 'portfolio' && <section className="projectsTable panel"><div className="tableTop"><a>عرض الكل <ChevronLeft size={17} /></a><h3>المشاريع</h3></div><table><thead><tr><th>المشروع</th><th>المدير</th><th>الحالة</th><th>الأولوية</th><th>نسبة الإنجاز</th><th>الموعد النهائي</th><th></th></tr></thead><tbody>{filteredProjects.map(p => <tr key={p.name}><td><span className="projectIcon"><Grid2X2 size={16} /></span>{p.name}</td><td><img src={p.avatar} />{p.manager}</td><td><StatusPill type={p.health}>{p.status}</StatusPill></td><td><PriorityPill value={p.priority}/></td><td><b>{p.progress}%</b><ProgressBar value={p.progress} /></td><td className={p.health === 'late' || p.health === 'risk' ? 'dateRed' : p.health === 'done' ? 'dateGreen' : ''}>{p.end}</td><td><MoreHorizontal size={20} /></td></tr>)}</tbody></table></section>}
-      {page === 'board' && <MondayBoard projects={filteredProjects} tasks={data.tasks}/>}      
-      {page === 'functions' && <FunctionPanel setPage={setPage}/>}      
-      {page === 'sheets' && <section className="sheetViewer panel"><div className="sheetHero"><div><h3>Databases & Lists</h3><p>قوائم منظمة بأسلوب Notion مع فلاتر وTags وViews.</p></div><div className="sheetMiniStats"><span><b>{data.sheets.length}</b> شيت</span><span><b>{totalRows}</b> صف</span><span><b>{totalCols}</b> عمود</span><span><b>{sheetRows.length}</b> نتيجة</span></div></div><div className="sheetControls enhanced"><div className="selectBlock"><label>اختر الشيت</label><select value={currentSheet?.name || ''} onChange={e => setActiveSheet(e.target.value)}>{data.sheets.length ? data.sheets.map(s => <option key={s.name} value={s.name}>{s.name} - {s.rows.length} صف</option>) : <option>ارفع ملف Excel أولاً</option>}</select></div><div className="selectBlock"><label>نوع العرض</label><select><option>جدول تفصيلي</option><option>Board / Kanban</option><option>Calendar</option><option>Timeline</option><option>عناصر تحتاج متابعة</option></select></div><div className="selectBlock"><label>حالة العناصر</label><select><option>كل الحالات</option><option>Open</option><option>In Progress</option><option>Blocked</option><option>Completed</option></select></div><div className="sheetSearch"><Search size={17} /><input value={sheetQuery} onChange={e => setSheetQuery(e.target.value)} placeholder="بحث داخل الشيت" /></div></div><div className="tabs compactTabs">{data.sheets.map(s => <button key={s.name} className={(currentSheet?.name === s.name) ? 'active' : ''} onClick={() => setActiveSheet(s.name)}>{s.name}<span>{s.rows.length}</span></button>)}</div>{currentSheet ? <div className="sheetTable enhancedTable"><table><thead><tr>{currentSheet.headers.map((h, index) => <th key={`${h}-${index}`}><span>{h}</span></th>)}</tr></thead><tbody>{sheetRows.map((row, i) => <tr key={i}>{currentSheet.headers.map((h, j) => <td className={cellTone(row[j], h)} key={`${i}-${j}`}>{renderSheetCell(row[j], h)}</td>)}</tr>)}</tbody></table></div> : <div className="emptySheet"><Upload size={36}/><b>ارفع ملف Excel لعرض القوائم</b><p>استخدم زر رفع شيت جديد بالأعلى.</p></div>}</section>}
-      {!['dashboard','portfolio','sheets','board','functions'].includes(page) && <section className="panel placeholderPage"><h3>صفحة {nav.find(n => n[0] === page)?.[2]}</h3><p>سيتم ربط هذه الصفحة لاحقًا بقوائم Microsoft Lists أو شيتات Excel حسب اختيارك.</p></section>}
+  return <div className={`appShell ${lang}`} dir={dir}>
+    <TopBar t={t} lang={lang} setLang={setLang} uploadWorkbook={uploadWorkbook}/>
+    <Sidebar t={t} page={page} setPage={setPage}/>
+    <main className="mainArea">
+      <PageHeader t={t} page={page} setPage={setPage}/>
+      {page === 'dashboard' && <><section className="filterDock"><div><Filter size={16}/><b>{lang === 'ar' ? 'فلاتر ديناميكية' : 'Dynamic filters'}</b></div><select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option value="all">{t.all}</option><option value="healthy">{t.healthy}</option><option value="delayed">{t.delayed}</option><option value="blocked">{t.blocked}</option><option value="done">{t.done}</option></select><select value={managerFilter} onChange={e=>setManagerFilter(e.target.value)}>{managers.map(m => <option value={m} key={m}>{m === 'all' ? t.all : m}</option>)}</select><select value={progressFilter} onChange={e=>setProgressFilter(e.target.value)}><option value="all">{t.all}</option><option value="low">&lt; 50%</option><option value="mid">50% - 80%</option><option value="high">&gt; 80%</option></select></section><Dashboard t={t} lang={lang} projects={filtered} setPage={setPage}/></>}
+      {page === 'portfolio' && <ProjectTable t={t} lang={lang} projects={filtered}/>}      
+      {page === 'board' && <BoardPage t={t} lang={lang} projects={filtered}/>}      
+      {page === 'databases' && <DatabasesPage t={t} lang={lang} data={data} activeSheet={activeSheet} setActiveSheet={setActiveSheet} sheetQuery={sheetQuery} setSheetQuery={setSheetQuery}/>}      
+      {page === 'settings' && <FunctionPage t={t} lang={lang}/>}      
+      {!['dashboard','portfolio','board','databases','settings'].includes(page) && <Placeholder label={t[page] || page} lang={lang}/>}      
     </main>
   </div>;
 }
