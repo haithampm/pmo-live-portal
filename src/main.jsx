@@ -5,62 +5,39 @@ import * as XLSX from 'xlsx';
 import {
   AlertTriangle,
   BarChart3,
+  Bell,
+  BookOpen,
+  BriefcaseBusiness,
   CalendarDays,
-  ClipboardList,
+  CheckCircle2,
+  ChevronLeft,
+  ClipboardCheck,
+  Clock3,
   Download,
-  ExternalLink,
-  FileSpreadsheet,
+  Edit3,
   FileText,
-  FolderOpen,
-  Gauge,
+  Folder,
+  Grid2X2,
   Home,
-  KanbanSquare,
-  Link as LinkIcon,
-  Mail,
-  PlusCircle,
-  RefreshCcw,
-  Save,
+  LayoutDashboard,
+  LineChart,
+  Menu,
+  MoreHorizontal,
+  Plus,
   Search,
   Settings,
-  ShieldCheck,
-  Table2,
+  Share2,
   Upload,
   Users,
 } from 'lucide-react';
 import './styles.css';
 
-const CONFIG = {
-  companyName: 'Leader Investment Group',
-  portalName: 'PMO Live Portal',
-  microsoftLists: {
-    projects: 'https://lists.microsoft.com/',
-    tasks: 'https://lists.microsoft.com/',
-    risks: 'https://lists.microsoft.com/',
-    reports: 'https://lists.microsoft.com/',
-    resources: 'https://lists.microsoft.com/',
-  },
-  forms: {
-    addTask: 'https://forms.office.com/',
-    updateTask: 'https://forms.office.com/',
-    weeklyReport: 'https://forms.office.com/',
-    registerRisk: 'https://forms.office.com/',
-  },
-};
-
 const DEFAULT_PROJECTS = [
-  { id: 'P001', name: 'EPM-IDT Phase 3', arabicName: 'مشروع التحول الرقمي في عمليات الحوكمة والرقابة على المشاريع الاستثمارية بامانة المنطقة الشرقية', region: 'EPM', businessLine: 'Le Source', owner: 'Mohamed Ahmed / Mohamed AL Khatim', status: 'Development', health: 'Amber', progress: 64, risk: 'High', openTasks: 28, overdue: 0, criticalRisks: 0, taskCount: 28, files: 'https://teams.microsoft.com/', schedule: 'https://teams.microsoft.com/', reports: 'https://teams.microsoft.com/', docs: 'https://teams.microsoft.com/', sheet: 'EPM-IDT Phase 3' },
-  { id: 'P002', name: 'EPM- EPM III - HR', arabicName: 'مشروع زين الشرقية', region: 'EPM', businessLine: 'Le Sys', owner: 'Rami Mamoon / Ahmed Al Said / Abdelrahman Abdellatif', status: 'Development', health: 'Amber', progress: 59, risk: 'High', openTasks: 28, overdue: 0, criticalRisks: 0, taskCount: 28, files: 'https://teams.microsoft.com/', schedule: 'https://teams.microsoft.com/', reports: 'https://teams.microsoft.com/', docs: 'https://teams.microsoft.com/', sheet: 'EPM- EPM III - HR' },
-];
-
-const DEFAULT_TASKS = [
-  { id: 'T001', project: 'EPM- EPM III - Finance', title: 'أوامر التغير', assignee: 'Ahmed Al Said', status: 'انشاء ملف متطلبات', phase: '2- Analysis', due: 'No due date', priority: 'High', progress: 0, note: 'فور الانتهاء من مراجعة العقود سوف يتم عقد اجتماع لمناقشة ما تم انجازة لاوامر التغير' },
-  { id: 'T002', project: 'EPM- EPM III - Finance', title: 'التكامل مع فواتير بلدي', assignee: 'Ahmed Al Said', status: 'انشاء ملف متطلبات', phase: '2- Analysis', due: 'No due date', priority: 'High', progress: 0, note: 'طلب تغيري - الربط مع منصة بلدي' },
-  { id: 'T003', project: 'EPM-IDT Phase 3', title: 'الرسائل التفاعلية (تشات بوت)', assignee: 'Mohamed Ahmed', status: 'قيد التطوير', phase: '5- Development', due: 'No due date', priority: 'Medium', progress: 55, note: 'تم طلب الرقم الخاص بالشات بوت ومن ثم سيتم البدء التهيئة' },
-];
-
-const DEFAULT_RISKS = [
-  { id: 'R001', project: 'EPM-IDT Phase 3', title: 'الرسائل التفاعلية (تشات بوت)', severity: 'Medium', owner: 'Mohamed Ahmed', status: 'قيد التطوير', note: 'تم طلب الرقم الخاص بالشات بوت ومن ثم سيتم البدء التهيئة' },
-  { id: 'R002', project: 'EPM- EPM III - Finance', title: 'أوامر التغير', severity: 'High', owner: 'Ahmed Al Said', status: 'انشاء ملف متطلبات', note: 'فور الانتهاء من مراجعة العقود سوف يتم عقد اجتماع لمناقشة ما تم انجازة لاوامر التغير' },
+  { name: 'تطوير بوابة العملاء', manager: 'أحمد العتيبي', avatar: 'https://i.pravatar.cc/60?img=12', status: 'متأخر', progress: 55, end: '2025/06/15', health: 'late' },
+  { name: 'نظام ERP', manager: 'سارة المري', avatar: 'https://i.pravatar.cc/60?img=47', status: 'على المسار', progress: 72, end: '2025/07/30', health: 'on' },
+  { name: 'تحديث البنية التحتية', manager: 'محمد الحربي', avatar: 'https://i.pravatar.cc/60?img=33', status: 'متعثّر', progress: 30, end: '2025/05/20', health: 'risk' },
+  { name: 'تطبيق الهاتف المحمول', manager: 'منال الشريف', avatar: 'https://i.pravatar.cc/60?img=49', status: 'على المسار', progress: 80, end: '2025/08/10', health: 'on' },
+  { name: 'تحليل البيانات والذكاء الاصطناعي', manager: 'علي القحطاني', avatar: 'https://i.pravatar.cc/60?img=11', status: 'مكتمل', progress: 100, end: '2025/04/30', health: 'done' },
 ];
 
 function norm(value) {
@@ -73,281 +50,145 @@ function normalizeHeader(header, index) {
   return norm(header) || `Column ${index + 1}`;
 }
 
-function isCompleted(text) {
-  const v = norm(text).toLowerCase();
-  return ['تم التطوير', 'تم التسليم', 'تم الانتهاء', 'تم الاطلاق', 'closed', 'support', 'الدعم', 'قبول'].some(x => v.includes(x));
-}
-
-function phaseProgress(phase, status) {
-  const txt = `${phase || ''} ${status || ''}`.toLowerCase();
-  const match = norm(phase).match(/^(\d{1,2})\s*[-–]/);
-  if (match) return Math.max(0, Math.min(100, Math.round((Number(match[1]) / 11) * 100)));
-  if (isCompleted(txt)) return 92;
-  if (txt.includes('go-live') || txt.includes('go live') || txt.includes('اطلاق') || txt.includes('الاطلاق')) return 82;
-  if (txt.includes('training') || txt.includes('تدريب')) return 73;
-  if (txt.includes('deployment') || txt.includes('production') || txt.includes('خوادم') || txt.includes('انتاج')) return 64;
-  if (txt.includes('development') || txt.includes('تطوير')) return 55;
-  if (txt.includes('analysis') || txt.includes('تحليل')) return 25;
-  if (txt.includes('planning') || txt.includes('تخطيط')) return 10;
-  return 0;
-}
-
-function priorityFrom(progress, status, note) {
-  const txt = `${status || ''} ${note || ''}`.toLowerCase();
-  if (progress < 30 || ['متوقف', 'معلق', 'بانتظار', 'blocked', 'critical'].some(x => txt.includes(x))) return 'Critical';
-  if (progress < 60 || ['انتظار', 'لم يتم', 'تأخير'].some(x => txt.includes(x))) return 'High';
-  if (progress < 85) return 'Medium';
-  return 'Low';
-}
-
-function statusFromProgress(progress) {
-  if (progress >= 96) return 'Completed';
-  if (progress >= 85) return 'Support';
-  if (progress >= 70) return 'Deployment';
-  if (progress >= 50) return 'Development';
-  if (progress >= 25) return 'Analysis';
-  return 'Planning';
-}
-
-function healthFrom(progress, openTasks, criticalRisks) {
-  if (criticalRisks >= 3 || progress < 45) return 'Red';
-  if (criticalRisks >= 1 || progress < 70 || openTasks > 20) return 'Amber';
-  return 'Green';
-}
-
 function sheetToRows(ws) {
   const matrix = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
   const headerIndex = matrix.findIndex(row => row.filter(cell => norm(cell)).length >= 3);
   const safeHeaderIndex = headerIndex >= 0 ? headerIndex : 0;
   const headers = (matrix[safeHeaderIndex] || []).map(normalizeHeader);
-  const lastHeader = headers.reduce((last, h, i) => (norm(h) ? i : last), 0);
-  const finalHeaders = headers.slice(0, lastHeader + 1).map((h, i) => h || `Column ${i + 1}`);
-  const rows = matrix.slice(safeHeaderIndex + 1).map(row => {
-    const obj = {};
-    finalHeaders.forEach((h, i) => { obj[h] = norm(row[i]); });
-    return obj;
-  }).filter(row => Object.values(row).some(v => norm(v)));
-  return { headers: finalHeaders, rows };
+  const rows = matrix.slice(safeHeaderIndex + 1).map(row => headers.map((_, i) => norm(row[i]))).filter(row => row.some(Boolean));
+  return { headers, rows };
 }
 
 function parseWorkbook(workbook, fileName = 'Uploaded workbook') {
   const sheets = workbook.SheetNames.map(name => ({ name, ...sheetToRows(workbook.Sheets[name]) }));
   const erp = sheets.find(s => s.name === 'ERP Project');
-  const serviceSheets = sheets.filter(s => !['ERP Project', 'Radar', 'LOV'].includes(s.name));
-  const tasks = [];
-
-  serviceSheets.forEach(sheet => {
-    sheet.rows.forEach(row => {
-      const title = row['الخدمة'] || row['Implementation Activates'] || row['Project Name'] || '';
-      const phase = row['المرحلة'] || row['Implementation Life Cycle'] || '';
-      const status = row['الحالة'] || '';
-      const action = row['نوع الاجراء'] || row['الإجراء التالي'] || row['الاجراء التالي'] || '';
-      const note = row['ملاحظة'] || '';
-      const due = row['تاريخ الاستحقاق'] || '';
-      const assignee = row['المعنيين'] || row['Project Team'] || '';
-      if (!title) return;
-      if (![phase, status, action, note, due, assignee].some(Boolean)) return;
-      const progress = phaseProgress(phase, status);
-      const priority = priorityFrom(progress, status, note);
-      tasks.push({
-        id: `T${String(tasks.length + 1).padStart(4, '0')}`,
-        project: sheet.name,
-        title,
-        assignee: assignee || 'Unassigned',
-        status: status || action || 'Open',
-        phase,
-        due: due || 'No due date',
-        priority,
-        progress,
-        note,
-        action,
-        sheet: sheet.name,
-      });
-    });
-  });
-
-  const grouped = tasks.reduce((acc, task) => {
-    acc[task.project] = acc[task.project] || [];
-    acc[task.project].push(task);
-    return acc;
-  }, {});
-
-  const projects = (erp?.rows || serviceSheets.map((s, i) => ({ 'Project Name': s.name, '#': i + 1 }))).filter(row => row['Project Name'] || row['الخدمة']).map((row, i) => {
-    const name = row['Project Name'] || row['الخدمة'] || `Project ${i + 1}`;
-    const projectTasks = grouped[name] || [];
-    const progress = projectTasks.length ? Math.round(projectTasks.reduce((sum, t) => sum + t.progress, 0) / projectTasks.length) : 0;
-    const openTasks = projectTasks.filter(t => t.progress < 90).length;
-    const criticalRisks = projectTasks.filter(t => t.priority === 'Critical').length;
-    const health = healthFrom(progress, openTasks, criticalRisks);
-    return {
-      id: `P${String(i + 1).padStart(3, '0')}`,
-      name,
-      arabicName: row['Arabic Name'] || '',
-      businessLine: row['Business Line'] || '',
-      region: row['Region'] || '',
-      owner: row['Project Manager'] || row['Project Team'] || 'Project Team',
-      start: row['Start Date'] || '',
-      end: row['End Date'] || '',
-      applications: row['Application/s'] || '',
-      status: statusFromProgress(progress),
-      health,
-      progress,
-      risk: health === 'Red' ? 'Critical' : health === 'Amber' ? 'High' : 'Medium',
-      openTasks,
-      overdue: 0,
-      criticalRisks,
-      taskCount: projectTasks.length,
-      files: 'https://teams.microsoft.com/',
-      schedule: 'https://teams.microsoft.com/',
-      reports: 'https://teams.microsoft.com/',
-      docs: 'https://teams.microsoft.com/',
-      sheet: name,
-    };
-  });
-
-  const risks = tasks.filter(t => ['Critical', 'High'].includes(t.priority)).map((t, i) => ({
-    id: `R${String(i + 1).padStart(4, '0')}`,
-    project: t.project,
-    title: t.title,
-    severity: t.priority,
-    owner: t.assignee,
-    status: t.status,
-    phase: t.phase,
-    note: t.note,
-  }));
-
-  return {
-    sourceInfo: {
-      workbook: fileName,
-      projects: projects.length,
-      sourceTasks: tasks.length,
-      displayRisks: risks.length,
-      sheets: sheets.length,
-      updatedAt: new Date().toISOString().slice(0, 10),
-    },
-    projects,
-    tasks,
-    risks,
-    sheets,
-  };
+  const projectRows = erp?.rows || [];
+  const projects = projectRows.length ? projectRows.slice(0, 24).map((row, i) => ({
+    name: row[1] || row[0] || `مشروع ${i + 1}`,
+    manager: row[7] || row[6] || 'مدير المشروع',
+    avatar: `https://i.pravatar.cc/60?img=${(i % 50) + 1}`,
+    status: i % 5 === 0 ? 'متأخر' : i % 4 === 0 ? 'متعثّر' : i % 6 === 0 ? 'مكتمل' : 'على المسار',
+    progress: Math.min(100, Math.max(20, 35 + ((i * 11) % 65))),
+    end: row[10] || row[9] || '2025/07/30',
+    health: i % 5 === 0 ? 'late' : i % 4 === 0 ? 'risk' : i % 6 === 0 ? 'done' : 'on',
+  })) : DEFAULT_PROJECTS;
+  return { workbook: fileName, sheets, projects };
 }
 
-function pillClass(value) {
-  const map = {
-    Green: 'pill green', Amber: 'pill amber', Red: 'pill red', Completed: 'pill green', Deployment: 'pill green', Support: 'pill green', Development: 'pill blue', Analysis: 'pill amber', Planning: 'pill amber', UAT: 'pill blue', Critical: 'pill red', High: 'pill orange', Medium: 'pill blue', Low: 'pill neutral', 'تم التطوير': 'pill green', 'تم التسليم': 'pill green', 'قبول': 'pill green', 'تحت التطوير': 'pill amber', 'في مرحلة التطوير': 'pill blue', 'قيد التطوير': 'pill blue', 'جاري التحليل': 'pill amber', 'انشاء ملف متطلبات': 'pill amber', 'الدعم': 'pill green', 'الدغم': 'pill amber', Blocked: 'pill red', Overdue: 'pill red', New: 'pill neutral'
-  };
-  return map[value] || 'pill neutral';
+function StatusPill({ type, children }) {
+  return <span className={`statusPill ${type}`}>{children}</span>;
 }
 
-function Pill({ children }) { return <span className={pillClass(children)}>{children || '—'}</span>; }
-function ButtonLink({ href, children, icon: Icon = ExternalLink }) { return <a className="btn" href={href} target="_blank" rel="noreferrer"><Icon size={16} />{children}</a>; }
-function Metric({ icon: Icon, label, value, sub }) { return <div className="metric"><div><p>{label}</p><strong>{value}</strong><span>{sub}</span></div><div className="metricIcon"><Icon size={23} /></div></div>; }
-function shortText(text, length = 120) { const value = norm(text); return value.length > length ? `${value.slice(0, length)}...` : value; }
+function TopMetric({ title, value, delta, icon: Icon, tone }) {
+  return (
+    <motion.div className="topMetric" whileHover={{ y: -4 }} transition={{ duration: 0.2 }}>
+      <div className={`metricBadge ${tone}`}><Icon size={22} /></div>
+      <p>{title}</p>
+      <strong>{value}</strong>
+      <span className={delta?.includes('-') ? 'down' : 'up'}>{delta}</span>
+    </motion.div>
+  );
+}
+
+function ProgressBar({ value, tone = 'blue' }) {
+  return <div className="progressLine"><i className={tone} style={{ width: `${value}%` }} /></div>;
+}
+
+function Donut() {
+  return (
+    <div className="donutWrap">
+      <div className="donut"><span /></div>
+      <div className="legend">
+        <p><i className="greenDot" />على المسار</p>
+        <p><i className="amberDot" />متأخر</p>
+        <p><i className="redDot" />متعثر</p>
+        <p><i className="grayDot" />مكتمل</p>
+      </div>
+      <b>إجمالي المشاريع: 24</b>
+    </div>
+  );
+}
 
 function App() {
-  const [workbookData, setWorkbookData] = React.useState(() => ({
-    sourceInfo: { workbook: 'Starter sample. Upload Excel to load full workbook.', projects: DEFAULT_PROJECTS.length, sourceTasks: DEFAULT_TASKS.length, displayRisks: DEFAULT_RISKS.length, sheets: 0, updatedAt: new Date().toISOString().slice(0, 10) },
-    projects: DEFAULT_PROJECTS,
-    tasks: DEFAULT_TASKS,
-    risks: DEFAULT_RISKS,
-    sheets: [],
-  }));
-  const [query, setQuery] = React.useState('');
-  const [taskQuery, setTaskQuery] = React.useState('');
-  const [activeSheetName, setActiveSheetName] = React.useState('');
+  const [data, setData] = React.useState({ workbook: 'Sample dashboard', sheets: [], projects: DEFAULT_PROJECTS });
   const [sheetQuery, setSheetQuery] = React.useState('');
-  const [selectedProjectId, setSelectedProjectId] = React.useState('P001');
-  const [liveSheetUrl, setLiveSheetUrl] = React.useState(() => localStorage.getItem('liveSheetUrl') || '');
-  const [editSheetUrl, setEditSheetUrl] = React.useState(() => localStorage.getItem('editSheetUrl') || '');
+  const [activeSheet, setActiveSheet] = React.useState('');
+  const currentSheet = data.sheets.find(s => s.name === activeSheet) || data.sheets[0];
+  const sheetRows = currentSheet ? currentSheet.rows.filter(row => row.some(cell => norm(cell).toLowerCase().includes(sheetQuery.toLowerCase()))).slice(0, 80) : [];
 
-  const projects = workbookData.projects.length ? workbookData.projects : DEFAULT_PROJECTS;
-  const tasks = workbookData.tasks.length ? workbookData.tasks : DEFAULT_TASKS;
-  const risks = workbookData.risks.length ? workbookData.risks : DEFAULT_RISKS;
-  const sheets = workbookData.sheets || [];
-  const selected = projects.find(p => p.id === selectedProjectId) || projects[0];
-  const activeSheet = sheets.find(s => s.name === activeSheetName) || sheets[0];
-
-  React.useEffect(() => {
-    if (!projects.find(p => p.id === selectedProjectId) && projects[0]) setSelectedProjectId(projects[0].id);
-  }, [projects, selectedProjectId]);
-
-  React.useEffect(() => {
-    if (!activeSheetName && sheets[0]) setActiveSheetName(sheets[0].name);
-  }, [sheets, activeSheetName]);
-
-  const summary = React.useMemo(() => ({
-    total: projects.length,
-    atRisk: projects.filter(p => p.health === 'Amber' || p.health === 'Red').length,
-    openTasks: projects.reduce((a,p)=>a + Number(p.openTasks || 0),0),
-    overdue: projects.reduce((a,p)=>a + Number(p.overdue || 0),0),
-    criticalRisks: projects.reduce((a,p)=>a + Number(p.criticalRisks || 0),0),
-    avgProgress: projects.length ? Math.round(projects.reduce((a,p)=>a + Number(p.progress || 0),0) / projects.length) : 0,
-  }), [projects]);
-
-  const filteredProjects = projects.filter(p => `${p.name} ${p.arabicName} ${p.owner} ${p.status} ${p.region}`.toLowerCase().includes(query.toLowerCase()));
-  const filteredTasks = tasks.filter(t => `${t.project} ${t.title} ${t.assignee} ${t.status} ${t.phase} ${t.note}`.toLowerCase().includes(taskQuery.toLowerCase())).slice(0, 100);
-  const selectedTasks = tasks.filter(t => t.project === selected?.name).slice(0, 8);
-  const selectedRisks = risks.filter(r => r.project === selected?.name).slice(0, 6);
-  const filteredSheetRows = activeSheet ? activeSheet.rows.filter(row => row.some(cell => norm(cell).toLowerCase().includes(sheetQuery.toLowerCase()))).slice(0, 250) : [];
-
-  async function handleUpload(event) {
+  async function uploadWorkbook(event) {
     const file = event.target.files?.[0];
     if (!file) return;
     const buffer = await file.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
     const parsed = parseWorkbook(workbook, file.name);
-    setWorkbookData(parsed);
-    setActiveSheetName(parsed.sheets[0]?.name || '');
-    setSelectedProjectId(parsed.projects[0]?.id || 'P001');
+    setData(parsed);
+    setActiveSheet(parsed.sheets[0]?.name || '');
   }
 
-  function saveLiveLinks() {
-    localStorage.setItem('liveSheetUrl', liveSheetUrl);
-    localStorage.setItem('editSheetUrl', editSheetUrl);
-  }
+  const projects = data.projects;
 
-  function exportCurrentData() {
-    const payload = JSON.stringify(workbookData, null, 2);
-    const blob = new Blob([payload], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'pmo-workbook-data.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+  return (
+    <div className="spPage" dir="rtl">
+      <header className="spTopBar">
+        <div className="topIcons"><img src="https://i.pravatar.cc/48?img=13" /><Settings size={21} /><span>؟</span><Bell size={20} /></div>
+        <div className="spSearch"><Search size={19} /><input placeholder="البحث في هذا الموقع" /></div>
+        <div className="spBrand"><b>SharePoint</b><Grid2X2 size={24} /></div>
+      </header>
 
-  return <div className="app">
-    <aside className="sidebar">
-      <div className="brand"><div className="logo"><Gauge size={23}/></div><div><h1>{CONFIG.portalName}</h1><p>{CONFIG.companyName}</p></div></div>
-      <nav>{[[Home,'Dashboard'],[FileSpreadsheet,'Live Workbook'],[Table2,'Sheet Viewer'],[FolderOpen,'Projects'],[KanbanSquare,'Tasks Board'],[AlertTriangle,'Risks & Issues'],[Users,'Resources'],[FileText,'Weekly Reports']].map(([Icon,label])=><a key={label} href={`#${label.replaceAll(' ','-')}`}><Icon size={18}/><span>{label}</span></a>)}</nav>
-      <div className="sideCard"><h3>Excel Live Control</h3><p>Upload the workbook to instantly render all sheets as professional web tables. Add the Excel Online edit link to keep editing in Microsoft.</p><label className="btn uploadBtn"><Upload size={16}/>Upload Excel<input type="file" accept=".xlsx,.xls,.xlsm" onChange={handleUpload}/></label><ButtonLink href={editSheetUrl || '#'} icon={ExternalLink}>Edit Live Sheet</ButtonLink></div>
-    </aside>
+      <aside className="rightNav">
+        <a className="active"><Home size={22} />الصفحة الرئيسية</a>
+        <a><Folder size={21} />المحفظة والمشاريع</a>
+        <a><ClipboardCheck size={21} />المهام</a>
+        <a><BarChart3 size={21} />التقارير ولوحات المعلومات</a>
+        <a><FileText size={21} />المستندات</a>
+        <a><CheckCircle2 size={21} />الموافقات</a>
+        <a><Users size={21} />الموارد والقدرات</a>
+        <a><AlertTriangle size={21} />المخاطر والمشكلات</a>
+        <a><BookOpen size={21} />الدروس المستفادة</a>
+        <a><Settings size={21} />الإعدادات</a>
+        <a className="edit"><Edit3 size={20} />تحرير</a>
+        <a className="back"><ChevronLeft size={20} />عودة إلى SharePoint</a>
+      </aside>
 
-    <main>
-      <motion.section className="hero" initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{duration:.45}}>
-        <div><p className="eyebrow">Workbook web viewer • {workbookData.sourceInfo.updatedAt}</p><h2>Solution Department PMO Dashboard</h2><p className="intro">The portal now displays your Excel workbook as a web application with projects, tasks, risks, sheet tabs, search, filtering, and direct edit/open links for the source Excel file.</p></div>
-        <div className="actions"><label className="primary fileAction"><Upload size={16}/> Upload Workbook<input type="file" accept=".xlsx,.xls,.xlsm" onChange={handleUpload}/></label><ButtonLink href={CONFIG.forms.weeklyReport} icon={Mail}>Submit Weekly Report</ButtonLink><button className="darkBtn lightBtn" onClick={exportCurrentData}><Download size={16}/> Export JSON</button></div>
-      </motion.section>
+      <main className="spContent">
+        <section className="pageHeader">
+          <div className="headerIcon"><BriefcaseBusiness size={44} /></div>
+          <div><h1>بوابة إدارة المشاريع</h1><p>لوحة تحكم المحفظة والمشاريع</p></div>
+        </section>
 
-      <section className="metrics"><Metric icon={FolderOpen} label="Total Projects" value={summary.total} sub="From ERP Project / sheets"/><Metric icon={ClipboardList} label="Tracked Activities" value={workbookData.sourceInfo.sourceTasks || tasks.length} sub={`${summary.openTasks} open activities`}/><Metric icon={AlertTriangle} label="Attention Items" value={workbookData.sourceInfo.displayRisks || risks.length} sub={`${summary.atRisk} projects amber/red`}/><Metric icon={BarChart3} label="Portfolio Progress" value={`${summary.avgProgress}%`} sub="Average completion"/></section>
+        <section className="commandBar">
+          <label className="primaryCmd"><Plus size={20} />مشروع جديد<input type="file" accept=".xlsx,.xls,.xlsm" onChange={uploadWorkbook} /></label>
+          <button><FileText size={18} />إنشاء تقرير</button>
+          <button><Download size={18} />تصدير</button>
+          <button><Share2 size={18} />مشاركة</button>
+          <span className="workbookName">{data.workbook}</span>
+        </section>
 
-      <section className="card livePanel" id="Live-Workbook"><div className="cardHead"><div><h3>Live Workbook Connection</h3><p>Use Excel Online / OneDrive / Teams link for direct editing. The web dashboard remains the viewer and PMO layer.</p></div><Pill>{workbookData.sourceInfo.workbook}</Pill></div><div className="liveGrid"><div><label>Excel Online view/embed link</label><input value={liveSheetUrl} onChange={e=>setLiveSheetUrl(e.target.value)} placeholder="Paste OneDrive / SharePoint Excel view link"/></div><div><label>Excel Online edit link</label><input value={editSheetUrl} onChange={e=>setEditSheetUrl(e.target.value)} placeholder="Paste Excel edit link"/></div><button className="btn" onClick={saveLiveLinks}><Save size={16}/> Save links</button><a className="btn" href={liveSheetUrl || '#'} target="_blank" rel="noreferrer"><ExternalLink size={16}/> Open Live Workbook</a></div>{liveSheetUrl ? <iframe className="sheetFrame" src={liveSheetUrl} title="Live Excel Workbook"/> : <div className="emptyFrame"><FileSpreadsheet size={32}/><b>No live Excel link yet</b><span>Paste an Excel Online / OneDrive / SharePoint link above, or upload the workbook to render it in the portal.</span></div>}</section>
+        <section className="kpiGrid">
+          <TopMetric title="عدد المشاريع" value="24" delta="▲ 3 منذ الشهر الماضي" icon={Folder} tone="blue" />
+          <TopMetric title="المهام المتأخرة" value="18" delta="▲ 5 منذ الشهر الماضي" icon={Clock3} tone="red" />
+          <TopMetric title="المشاريع عالية المخاطر" value="6" delta="▲ 1 منذ الشهر الماضي" icon={AlertTriangle} tone="orange" />
+          <TopMetric title="نسبة الإنجاز" value="68%" delta="▲ 6% منذ الشهر الماضي" icon={LineChart} tone="green" />
+          <TopMetric title="الاستخدام" value="74%" delta="▼ 2% منذ الشهر الماضي" icon={Users} tone="purple" />
+          <TopMetric title="التقارير المفتوحة" value="11" delta="▼ 3 منذ الشهر الماضي" icon={FileText} tone="cyan" />
+        </section>
 
-      <section className="gridMain">
-        <div className="card wide" id="Projects"><div className="cardHead"><div><h3>Projects Portfolio</h3><p>Professional portfolio table generated from the uploaded workbook.</p></div><div className="search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search projects, owner, region..."/></div></div><div className="tableWrap"><table><thead><tr><th>Project</th><th>Region</th><th>Owner</th><th>Status</th><th>Progress</th><th>Files</th></tr></thead><tbody>{filteredProjects.map(p=><tr key={p.id} onClick={()=>setSelectedProjectId(p.id)} className={selected?.id===p.id?'selected':''}><td><b>{p.name}</b><small>{p.arabicName || p.id}</small></td><td>{p.region || '-'}</td><td>{shortText(p.owner, 70)}</td><td><Pill>{p.status}</Pill></td><td><div className="progress"><span><i style={{width:`${p.progress}%`}}/></span>{p.progress}%</div></td><td><a href={p.files} target="_blank" rel="noreferrer"><LinkIcon size={14}/> Open</a></td></tr>)}</tbody></table></div></div>
-        <div className="card"><div className="cardHead"><div><h3>Project Workspace</h3><p>{selected?.name}</p></div><Pill>{selected?.health}</Pill></div><div className="workspace"><div className="workTop"><span>Progress</span><b>{selected?.progress || 0}%</b></div><div className="bar"><i style={{width:`${selected?.progress || 0}%`}}/></div><div className="mini"><div><b>{selected?.openTasks || 0}</b><span>Open</span></div><div><b>{selected?.taskCount || 0}</b><span>Total</span></div><div><b>{selected?.criticalRisks || 0}</b><span>Attention</span></div></div></div><div className="projectMeta"><p><b>Arabic name:</b> {selected?.arabicName || '-'}</p><p><b>Business line:</b> {selected?.businessLine || '-'}</p><p><b>Sheet:</b> {selected?.sheet || '-'}</p></div><div className="linkGrid"><ButtonLink href={selected?.files || '#'} icon={FolderOpen}>Main Files</ButtonLink><ButtonLink href={selected?.schedule || '#'} icon={CalendarDays}>Project Schedule</ButtonLink><ButtonLink href={selected?.reports || '#'} icon={FileText}>Status Reports</ButtonLink><ButtonLink href={selected?.docs || '#'} icon={FileText}>Documentations</ButtonLink></div></div>
-      </section>
+        <section className="dashboardGrid">
+          <div className="panel chartPanel"><div className="panelHead"><MoreHorizontal size={22} /><h3>توزيع حالة المشاريع</h3></div><Donut /></div>
+          <div className="panel summaryPanel"><div className="panelHead"><BriefcaseBusiness size={22} /><h3>ملخص المحفظة</h3></div><div className="portfolioStats"><div><CheckCircle2 className="greenIcon" /><b>11</b><span>على المسار<br />(45%)</span></div><div><AlertTriangle className="redIcon" /><b>4</b><span>متعثر<br />(15%)</span></div><div><Clock3 className="amberIcon" /><b>6</b><span>متأخر<br />(25%)</span></div><div><CheckCircle2 className="grayIcon" /><b>3</b><span>مكتمل<br />(15%)</span></div></div><div className="dualProgress"><div><p>نسبة الإنجاز الإجمالية <b>68%</b></p><ProgressBar value={68} /></div><div><p>الاستخدام الإجمالي للموارد <b>74%</b></p><ProgressBar value={74} tone="purple" /></div></div></div>
+          <div className="panel alertPanel"><div className="panelHead"><Bell size={22} /><h3>تنبيهات ومتابعات</h3></div><div className="alerts"><div><span className="alertIcon red"><AlertTriangle /></span><p><b>تأخر في المشروع "تطوير بوابة العملاء"</b><small>تم تأخير الموعد النهائي 5 أيام</small></p><em>منذ 1 يوم</em></div><div><span className="alertIcon amber"><AlertTriangle /></span><p><b>مخاطر عالية في مشروع "نظام ERP"</b><small>تحديث خطة المخاطر مطلوب</small></p><em>منذ 2 يوم</em></div><div><span className="alertIcon orange"><CalendarDays /></span><p><b>اجتماع لجنة التوجيه</b><small>غداً 10:00 ص</small></p><em>منذ 2 يوم</em></div></div><a className="allAlerts">عرض جميع التنبيهات <ChevronLeft size={17} /></a></div>
+        </section>
 
-      <section className="card" id="Sheet-Viewer"><div className="cardHead"><div><h3>Workbook Sheet Viewer</h3><p>Browse all uploaded Excel sheets as searchable web tables.</p></div><div className="search"><Search size={16}/><input value={sheetQuery} onChange={e=>setSheetQuery(e.target.value)} placeholder="Search inside sheet..."/></div></div><div className="tabs">{sheets.length ? sheets.map(s=><button key={s.name} className={activeSheet?.name===s.name?'active':''} onClick={()=>setActiveSheetName(s.name)}>{s.name}<span>{s.rows.length}</span></button>) : <button className="active">Upload Excel to show sheets</button>}</div>{activeSheet ? <div className="tableWrap sheetTable"><table><thead><tr>{activeSheet.headers.map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{filteredSheetRows.map((row, i)=><tr key={i}>{activeSheet.headers.map((h, j)=><td key={`${i}-${j}`}>{row[j]}</td>)}</tr>)}</tbody></table></div> : <div className="emptyFrame"><Upload size={32}/><b>Upload your workbook</b><span>The sheet tabs and tables will appear here instantly.</span></div>}</section>
+        <section className="projectsTable panel">
+          <div className="tableTop"><a>عرض الكل <ChevronLeft size={17} /></a><h3>المشاريع</h3></div>
+          <table><thead><tr><th>المشروع</th><th>المدير</th><th>الحالة</th><th>نسبة الإنجاز</th><th>الموعد النهائي</th><th></th></tr></thead><tbody>{projects.slice(0, 8).map((p, i) => <tr key={p.name}><td><span className="projectIcon"><Grid2X2 size={16} /></span>{p.name}</td><td><img src={p.avatar} />{p.manager}</td><td><StatusPill type={p.health}>{p.status}</StatusPill></td><td><b>{p.progress}%</b><ProgressBar value={p.progress} /></td><td className={p.health === 'late' || p.health === 'risk' ? 'dateRed' : p.health === 'done' ? 'dateGreen' : ''}>{p.end}</td><td><MoreHorizontal size={20} /></td></tr>)}</tbody></table>
+        </section>
 
-      <section className="twoCols"><div className="card" id="Tasks-Board"><div className="cardHead"><div><h3>Task Control</h3><p>Search and review activities extracted from all project sheets.</p></div><div className="search smallSearch"><Search size={16}/><input value={taskQuery} onChange={e=>setTaskQuery(e.target.value)} placeholder="Search tasks..."/></div></div><div className="list">{filteredTasks.map(t=><div className="item" key={t.id}><div><b>{t.title}</b><p>{t.project} • {shortText(t.assignee, 80)} • {t.due}</p><p>{t.phase}</p></div><div><Pill>{t.status}</Pill><Pill>{t.priority}</Pill></div></div>)}</div></div><div className="card" id="Risks-&-Issues"><div className="cardHead"><div><h3>Risks & Issues</h3><p>Generated attention list from low-progress or pending activities.</p></div><ButtonLink href={CONFIG.forms.registerRisk} icon={PlusCircle}>Register</ButtonLink></div><div className="list">{risks.slice(0, 40).map(r=><div className="item" key={r.id}><div><b>{r.title}</b><p>{r.project} • Owner: {shortText(r.owner, 80)}</p><p>{shortText(r.note, 110)}</p></div><Pill>{r.severity}</Pill></div>)}</div></div></section>
-
-      <section className="twoCols"><div className="card"><div className="cardHead"><div><h3>Selected Project Tasks</h3><p>Activities for {selected?.name}</p></div><Pill>{selectedTasks.length}</Pill></div><div className="list">{selectedTasks.length ? selectedTasks.map(t=><div className="item" key={t.id}><div><b>{t.title}</b><p>{shortText(t.assignee, 80)} • {t.phase}</p></div><div><Pill>{t.status}</Pill></div></div>) : <div className="item"><div><b>No tasks displayed</b><p>Open the sheet viewer for full workbook details.</p></div></div>}</div></div><div className="card"><div className="cardHead"><div><h3>Selected Project Risks</h3><p>Attention items for {selected?.name}</p></div><Pill>{selectedRisks.length}</Pill></div><div className="list">{selectedRisks.length ? selectedRisks.map(r=><div className="item" key={r.id}><div><b>{r.title}</b><p>{shortText(r.owner, 80)} • {r.status}</p></div><Pill>{r.severity}</Pill></div>) : <div className="item"><div><b>No generated risks</b><p>This project has no generated high-priority risks.</p></div></div>}</div></div></section>
-
-      <section className="report" id="Weekly-Reports"><div><h3>Weekly Reporting Center</h3><p>The dashboard can render the workbook instantly. For true live editing, paste your Excel Online edit link above. Microsoft permissions remain controlled by Teams/OneDrive/SharePoint.</p></div><div className="actions"><a className="primary" href={CONFIG.forms.weeklyReport} target="_blank" rel="noreferrer"><Mail size={16}/> Submit Report</a><a className="darkBtn" href={CONFIG.microsoftLists.reports} target="_blank" rel="noreferrer"><FileText size={16}/> Open Reports List</a></div></section>
-    </main>
-  </div>;
+        {data.sheets.length > 0 && <section className="sheetViewer panel"><div className="panelHead"><Search size={21} /><h3>عرض الشيتات مباشرة</h3></div><div className="sheetControls"><div className="tabs">{data.sheets.map(s => <button key={s.name} className={(currentSheet?.name === s.name) ? 'active' : ''} onClick={() => setActiveSheet(s.name)}>{s.name}<span>{s.rows.length}</span></button>)}</div><input value={sheetQuery} onChange={e => setSheetQuery(e.target.value)} placeholder="بحث داخل الشيت" /></div>{currentSheet && <div className="sheetTable"><table><thead><tr>{currentSheet.headers.map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{sheetRows.map((row, i) => <tr key={i}>{currentSheet.headers.map((h, j) => <td key={`${i}-${j}`}>{row[j]}</td>)}</tr>)}</tbody></table></div>}</section>}
+      </main>
+    </div>
+  );
 }
 
 createRoot(document.getElementById('root')).render(<App />);
