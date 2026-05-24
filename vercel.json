@@ -6,12 +6,20 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/sharepoint.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "dist" }
     }
   ],
   "routes": [
+    {
+      "src": "/api/sharepoint(.*)",
+      "dest": "/api/sharepoint.js"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/api/records.js"
